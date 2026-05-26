@@ -1,0 +1,61 @@
+<pre class='metadata'>
+Title: Your Spec Title
+Shortname: your-spec
+Level: 1
+Status: D
+Group: WG21
+Audience: LWG
+URL: http://example.com/url-this-spec-will-live-at
+Editor: Aryan Naraghi, aryan.naraghi@gmail.com
+Abstract:
+  Allow users to specify `bool` as a type in `std::flat_map`, `std::stack`, `std::queue`, and `std::priority_queue` without changing the default container.
+Complain About: accidental-2119 yes, missing-example-ids yes
+Default Highlight: c++
+Markup Shorthands: markdown-inline yes, css no
+</pre>
+
+Introduction {#intro}
+=====================
+
+`std::flat_map` is defined as follows:
+
+<xmp line-numbers="on">
+template<class Key, class T, class Compare = less<Key>,
+           class KeyContainer = vector<Key>, class MappedContainer = vector<T>>
+  class flat_map
+</xmp>
+
+Both `KeyContainer` and `MappedContainer` must be [sequence containers](https://eel.is/c++draft/flat.map#overview-7). Notably, this excludes `std::vector<bool>`.
+
+This prevents users from defining a `std::flat_map` as follows:
+
+<xmp line-numbers="on">
+std::flat_map<int, bool> my_map;
+</xmp>
+
+Instead, in this example, users are forced to override `MappedContainer` with a container that is a sequence container:
+
+<xmp line-numbers="on">
+std::flat_map<int, bool, std::less<int>, std::vector<int>, std::deque<bool>> my_map;
+</xmp>
+
+This formulation is overly verbose and unapproachable for new C++ developers.
+
+In this proposal, we offer an amendment to `std::flat_map`, `std::flat_multimap`, `std::flat_set`, and `std::flat_multiset` such that `std::vector` can act as an underlying container even when the type is `bool`.
+
+Note that the other three container adaptors, `std::stack`, `std::queue`, and `std::priority_queue` do not have the same problem because their `reference` and `const_reference` type aliases are defined on the underlying container. For example:
+
+<xmp line-numbers="on">
+namespace std {
+  template<class T, class Container = vector<T>,
+           class Compare = less<typename Container::value_type>>
+  class priority_queue {
+  public:
+    using value_type      = Container::value_type;
+    using reference       = Container::reference;
+    using const_reference = Container::const_reference;
+    using size_type       = Container::size_type;
+    using container_type  = Container;
+    using value_compare   = Compare;
+</xmp>
+
