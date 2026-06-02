@@ -2,7 +2,7 @@
  <head>
   <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
   <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
-  <title>your-specR1: Your Spec Title</title>
+  <title>D????R1: vector&#60;bool> as an underlying container in flat adaptors</title>
 <style data-fill-with="stylesheet">/******************************************************************************
  *                   Style sheet for the W3C specifications                   *
  *
@@ -1564,7 +1564,35 @@ Possible extra rowspan handling
   <meta content="Bikeshed version 0a3d88311, updated Mon May 4 18:07:03 2026 +0000" name="generator">
   <link href="http://example.com/url-this-spec-will-live-at" rel="canonical">
   <link href="https://isocpp.org/favicon.ico" rel="icon">
+  <meta content="f8162d6ca3c253aa763a15c858fe1bc446f0964c" name="revision">
   <meta content="dark light" name="color-scheme">
+<style>
+ins {
+  background: hsl(120, 50%, 88%);
+  text-decoration: none;
+  border-radius: 0.3em;
+  padding: 0 0.2em;
+}
+
+del {
+  background: hsl(0, 60%, 92%);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: hsl(0, 40%, 35%);
+  border-radius: 0.3em;
+  padding: 0 0.2em;
+}
+
+blockquote.wording {
+  font-family: Georgia, 'Noto Serif', serif;
+  line-height: 1.5;
+}
+
+blockquote.wording pre {
+  font-family: 'Fira Code', Menlo, Consolas, monospace;
+  line-height: 1.4;
+}
+</style>
 <style>/* Boilerplate: style-autolinks */
 .css.css, .property.property, .descriptor.descriptor {
     color: var(--a-normal-text);
@@ -2157,9 +2185,9 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
  <body class="h-entry">
   <div class="head">
    <p data-fill-with="logo"></p>
-   <h1 class="no-ref p-name" id="title">your-specR1<br>Your Spec Title</h1>
+   <h1 class="no-ref p-name" id="title">D????R1<br><code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> as an underlying container in flat adaptors</h1>
    <h2 class="heading no-num no-ref no-toc settled" id="profile-and-date"><span class="content">Draft Proposal,
-    <time class="dt-updated" datetime="2026-05-25">2026-05-25</time></span></h2>
+    <time class="dt-updated" datetime="2026-06-01">2026-06-01</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -2167,7 +2195,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
      <dt class="editor">Author:
      <dd class="editor h-card p-author vcard"><a class="email fn p-name u-email" href="mailto:aryan.naraghi@gmail.com">Aryan Naraghi</a>
      <dt>Audience:
-     <dd>LWG
+     <dd>LEWG, LWG
      <dt>Project:
      <dd>ISO/IEC 14882 Programming Languages — C++, ISO/IEC JTC1/SC22/WG21
     </dl>
@@ -2177,27 +2205,396 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   </div>
   <div class="p-summary" data-fill-with="abstract">
    <h2 class="heading no-num no-ref no-toc settled" id="abstract"><span class="content">Abstract</span></h2>
-   <p>Allow users to specify <code class="highlight"><c- b>bool</c-></code> as a type in <code class="highlight"><c- n>std</c-><c- o>::</c-><c- n>flat_map</c-></code>, <code class="highlight"><c- n>std</c-><c- o>::</c-><c- n>stack</c-></code>, <code class="highlight"><c- n>std</c-><c- o>::</c-><c- n>queue</c-></code>, and <code class="highlight"><c- n>std</c-><c- o>::</c-><c- n>priority_queue</c-></code> without changing the default container.</p>
+   <p>Allow <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> as an underlying container in <code class="highlight"><c- n>flat_map</c-></code>, <code class="highlight"><c- n>flat_multimap</c-></code>, <code class="highlight"><c- n>flat_set</c-></code>, and <code class="highlight"><c- n>flat_multiset</c-></code>, enabling <code class="highlight"><c- b>bool</c-></code> as a key or mapped type with the default template arguments.</p>
   </div>
   <nav data-fill-with="table-of-contents" id="toc">
    <h2 class="no-num no-ref no-toc" id="contents">Table of Contents</h2>
    <ol class="toc">
     <li><a href="#intro"><span class="secno">1</span> <span class="content">Introduction</span></a>
+    <li><a href="#details"><span class="secno">2</span> <span class="content">Details</span></a>
+    <li><a href="#other-adaptors"><span class="secno">3</span> <span class="content">Other Container Adaptors</span></a>
+    <li>
+     <a href="#wording"><span class="secno">4</span> <span class="content">Proposed Wording</span></a>
+     <ol class="toc">
+      <li><a href="#flat-map"><span class="secno">4.1</span> <span class="content"><span>[flat.map]</span></span></a>
+      <li><a href="#flat-multimap"><span class="secno">4.2</span> <span class="content"><span>[flat.multimap]</span></span></a>
+      <li><a href="#flat-set"><span class="secno">4.3</span> <span class="content"><span>[flat.set]</span></span></a>
+      <li><a href="#flat-multiset"><span class="secno">4.4</span> <span class="content"><span>[flat.multiset]</span></span></a>
+     </ol>
+    <li><a href="#impl"><span class="secno">5</span> <span class="content">Implementation Experience</span></a>
+    <li><a href="#ack"><span class="secno">6</span> <span class="content">Acknowledgements</span></a>
    </ol>
   </nav>
   <main>
    <h2 class="heading settled" data-level="1" id="intro"><span class="secno">1. </span><span class="content">Introduction</span><a class="self-link" href="#intro"></a></h2>
-   <p><code class="highlight"><c- n>std</c-><c- o>::</c-><c- n>flat_map</c-></code> is defined as follows:</p>
-<pre class="highlight line-numbered"><span class="line-no" data-line="1"></span><span class="line"><c- k>template</c-><c- o>&lt;</c-><c- k>class</c-> <c- nc>Key</c-><c- p>,</c-> <c- k>class</c-> <c- nc>T</c-><c- p>,</c-> <c- k>class</c-> <c- nc>Compare</c-> <c- o>=</c-> <c- n>less</c-><c- o>&lt;</c-><c- n>Key</c-><c- o>></c-><c- p>,</c-></span><span class="line-no" data-line="2"></span><span class="line">           <c- k>class</c-> <c- nc>KeyContainer</c-> <c- o>=</c-> <c- n>vector</c-><c- o>&lt;</c-><c- n>Key</c-><c- o>></c-><c- p>,</c-> <c- k>class</c-> <c- nc>MappedContainer</c-> <c- o>=</c-> <c- n>vector</c-><c- o>&lt;</c-><c- n>T</c-><c- o>>></c-></span><span class="line-no" data-line="3"></span><span class="line">  <c- k>class</c-> <c- nc>flat_map</c-></span></pre>
-   <p>Both <code class="highlight"><c- n>KeyContainer</c-></code> and <code class="highlight"><c- n>MappedContainer</c-></code> must be <a href="https://eel.is/c++draft/flat.map#overview-7">sequence containers</a>. Notably, this excludes <code class="highlight"><c- n>std</c-><c- o>::</c-><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code>.</p>
-   <p>This prevents users from defining a <code class="highlight"><c- n>std</c-><c- o>::</c-><c- n>flat_map</c-></code> as follows:</p>
+   <p><a href="https://eel.is/c++draft/flat.map#defn">[flat.map.defn]</a> defines
+<code class="highlight"><c- n>flat_map</c-></code> as:</p>
+<pre class="highlight line-numbered"><span class="line-no" data-line="1"></span><span class="line"><c- k>template</c-><c- o>&lt;</c-><c- k>class</c-> <c- nc>Key</c-><c- p>,</c-> <c- k>class</c-> <c- nc>T</c-><c- p>,</c-> <c- k>class</c-> <c- nc>Compare</c-> <c- o>=</c-> <c- n>less</c-><c- o>&lt;</c-><c- n>Key</c-><c- o>></c-><c- p>,</c-></span><span class="line-no" data-line="2"></span><span class="line">         <c- k>class</c-> <c- nc>KeyContainer</c-> <c- o>=</c-> <c- n>vector</c-><c- o>&lt;</c-><c- n>Key</c-><c- o>></c-><c- p>,</c-> <c- k>class</c-> <c- nc>MappedContainer</c-> <c- o>=</c-> <c- n>vector</c-><c- o>&lt;</c-><c- n>T</c-><c- o>>></c-></span><span class="line-no" data-line="3"></span><span class="line"><c- k>class</c-> <c- nc>flat_map</c-> <c- p>{</c-></span></pre>
+   <p><a href="https://eel.is/c++draft/flat.map#overview-7">[flat.map.overview]/7</a>
+requires that <code class="highlight"><c- n>KeyContainer</c-></code> and <code class="highlight"><c- n>MappedContainer</c-></code> be sequence containers.
+Notably, <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> <a href="https://eel.is/c++draft/flat.map#overview-note-3">is
+not</a> a sequence container.</p>
+   <p>Because <code class="highlight"><c- n>KeyContainer</c-></code> and <code class="highlight"><c- n>MappedContainer</c-></code> both default to <code class="highlight"><c- n>vector</c-></code>, the
+following code is ill-formed:</p>
 <pre class="highlight line-numbered"><span class="line-no" data-line="1"></span><span class="line"><c- n>std</c-><c- o>::</c-><c- n>flat_map</c-><c- o>&lt;</c-><c- b>int</c-><c- p>,</c-> <c- b>bool</c-><c- o>></c-> <c- n>my_map</c-><c- p>;</c-></span></pre>
-   <p>Instead, in this example, users are forced to override <code class="highlight"><c- n>MappedContainer</c-></code> with a container that is a sequence container:</p>
+   <p>To use <code class="highlight"><c- b>bool</c-></code> as a mapped type, the user must specify an alternative sequence
+container, such as <code class="highlight"><c- n>deque</c-></code>:</p>
 <pre class="highlight line-numbered"><span class="line-no" data-line="1"></span><span class="line"><c- n>std</c-><c- o>::</c-><c- n>flat_map</c-><c- o>&lt;</c-><c- b>int</c-><c- p>,</c-> <c- b>bool</c-><c- p>,</c-> <c- n>std</c-><c- o>::</c-><c- n>less</c-><c- o>&lt;</c-><c- b>int</c-><c- o>></c-><c- p>,</c-> <c- n>std</c-><c- o>::</c-><c- n>vector</c-><c- o>&lt;</c-><c- b>int</c-><c- o>></c-><c- p>,</c-> <c- n>std</c-><c- o>::</c-><c- n>deque</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>>></c-> <c- n>my_map</c-><c- p>;</c-></span></pre>
-   <p>This formulation is overly verbose and unapproachable for new C++ developers.</p>
-   <p>In this proposal, we offer an amendment to <code class="highlight"><c- n>std</c-><c- o>::</c-><c- n>flat_map</c-></code>, <code class="highlight"><c- n>std</c-><c- o>::</c-><c- n>flat_multimap</c-></code>, <code class="highlight"><c- n>std</c-><c- o>::</c-><c- n>flat_set</c-></code>, and <code class="highlight"><c- n>std</c-><c- o>::</c-><c- n>flat_multiset</c-></code> such that <code class="highlight"><c- n>std</c-><c- o>::</c-><c- n>vector</c-></code> can act as an underlying container even when the type is <code class="highlight"><c- b>bool</c-></code>.</p>
-   <p>Note that the other three container adaptors, <code class="highlight"><c- n>std</c-><c- o>::</c-><c- n>stack</c-></code>, <code class="highlight"><c- n>std</c-><c- o>::</c-><c- n>queue</c-></code>, and <code class="highlight"><c- n>std</c-><c- o>::</c-><c- n>priority_queue</c-></code> do not have the same problem because their <code class="highlight"><c- n>reference</c-></code> and <code class="highlight"><c- n>const_reference</c-></code> type aliases are defined on the underlying container. For example:</p>
-<pre class="highlight line-numbered"><span class="line-no" data-line="1"></span><span class="line"><c- k>namespace</c-> <c- nn>std</c-> <c- p>{</c-></span><span class="line-no" data-line="2"></span><span class="line">  <c- k>template</c-><c- o>&lt;</c-><c- k>class</c-> <c- nc>T</c-><c- p>,</c-> <c- k>class</c-> <c- nc>Container</c-> <c- o>=</c-> <c- n>vector</c-><c- o>&lt;</c-><c- n>T</c-><c- o>></c-><c- p>,</c-></span><span class="line-no" data-line="3"></span><span class="line">           <c- k>class</c-> <c- nc>Compare</c-> <c- o>=</c-> <c- n>less</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>Container</c-><c- o>::</c-><c- n>value_type</c-><c- o>>></c-></span><span class="line-no" data-line="4"></span><span class="line">  <c- k>class</c-> <c- nc>priority_queue</c-> <c- p>{</c-></span><span class="line-no" data-line="5"></span><span class="line">  <c- k>public</c-><c- o>:</c-></span><span class="line-no" data-line="6"></span><span class="line">    <c- k>using</c-> <c- n>value_type</c->      <c- o>=</c-> <c- n>Container</c-><c- o>::</c-><c- n>value_type</c-><c- p>;</c-></span><span class="line-no" data-line="7"></span><span class="line">    <c- k>using</c-> <c- n>reference</c->       <c- o>=</c-> <c- n>Container</c-><c- o>::</c-><c- n>reference</c-><c- p>;</c-></span><span class="line-no" data-line="8"></span><span class="line">    <c- k>using</c-> <c- n>const_reference</c-> <c- o>=</c-> <c- n>Container</c-><c- o>::</c-><c- n>const_reference</c-><c- p>;</c-></span><span class="line-no" data-line="9"></span><span class="line">    <c- k>using</c-> <c- n>size_type</c->       <c- o>=</c-> <c- n>Container</c-><c- o>::</c-><c- n>size_type</c-><c- p>;</c-></span><span class="line-no" data-line="10"></span><span class="line">    <c- k>using</c-> <c- n>container_type</c->  <c- o>=</c-> <c- n>Container</c-><c- p>;</c-></span><span class="line-no" data-line="11"></span><span class="line">    <c- k>using</c-> <c- n>value_compare</c->   <c- o>=</c-> <c- n>Compare</c-><c- p>;</c-></span></pre>
+   <p>This formulation is verbose and requires the user to know exactly which
+alternative sequence container to drop in. Additionally, the compilation errors
+generated when a user fails to override the container are difficult to
+understand, especially for new C++ developers.</p>
+   <p>A similar issue exists for <code class="highlight"><c- n>flat_multimmap</c-></code>, <code class="highlight"><c- n>flat_set</c-></code>, and <code class="highlight"><c- n>flat_multiset</c-></code>.</p>
+   <p>This paper proposes changes to <code class="highlight"><c- n>flat_map</c-></code>, <code class="highlight"><c- n>flat_multimap</c-></code>, <code class="highlight"><c- n>flat_set</c-></code>, and
+<code class="highlight"><c- n>flat_multiset</c-></code> so that <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> is usable as an underlying container without
+affecting any other conforming instantiations.</p>
+   <h2 class="heading settled" data-level="2" id="details"><span class="secno">2. </span><span class="content">Details</span><a class="self-link" href="#details"></a></h2>
+   <p>Before covering the proposed wording changes, it is important to understand why
+<code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> cannot be used as the container in the <code class="highlight"><c- n>flat_</c-></code> adaptors. We will
+center the discussion on <code class="highlight"><c- n>flat_map</c-></code>, but the same concepts apply to the other
+three flat adaptors.</p>
+   <p>There are two problems:</p>
+   <ol>
+    <li data-md>
+     <p><strong>Incompatible Reference Types:</strong> <code class="highlight"><c- n>reference</c-></code>, <code class="highlight"><c- n>const_reference</c-></code> and the
+return types of <code class="highlight"><c- nl>flat_map</c-><c- p>:</c-><c- k>operator</c-><c- p>[]</c-></code> and <code class="highlight"><c- n>flat_map</c-><c- o>::</c-><c- n>at</c-></code> are spelled in
+terms of <code class="highlight"><c- n>mapped_type</c-></code> and <code class="highlight"><c- n>value_type</c-></code> (see <a href="https://eel.is/c++draft/flat.map.defn">[flat.map.defn]</a>). The
+reference type for <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> is not <code class="highlight"><c- b>bool</c-><c- o>&amp;</c-></code>. It is a proxy class that
+simulates a direct reference to a <code class="highlight"><c- b>bool</c-></code>.</p>
+    <li data-md>
+     <p><strong>Sequence Container Requirement:</strong> The sequence container requirement
+explicitly excludes <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> (see <a href="https://eel.is/c++draft/flat.map#overview-7">[flat.map.overview]/7</a>).</p>
+   </ol>
+   <p>The fix for the first problem is to replace <code class="highlight"><c- n>T</c-><c- o>&amp;</c-></code> as the reference type with
+whatever reference type the underlying container’s iterators produce (via
+<code class="highlight"><c- n>iter_reference_t</c-></code>).</p>
+   <p>For every container that is valid today this is a no-op.
+<code class="highlight"><c- n>iter_reference_t</c-><c- o>&lt;</c-><c- n>C</c-><c- o>::</c-><c- n>iterator</c-><c- o>></c-></code> is <code class="highlight"><c- n>T</c-><c- o>&amp;</c-></code> and
+<code class="highlight"><c- n>iter_reference_t</c-><c- o>&lt;</c-><c- n>C</c-><c- o>::</c-><c- n>const_iterator</c-><c- o>></c-></code> is <code class="highlight"><c- k>const</c-> <c- n>T</c-><c- o>&amp;</c-></code>, so the typedefs and
+signatures remain unchanged for all currently-supported containers.</p>
+   <p>For <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code>, <code class="highlight"><c- n>iter_reference_t</c-><c- o>&lt;</c-><c- n>C</c-><c- o>::</c-><c- n>iterator</c-><c- o>></c-></code> is the proxy class type and
+<code class="highlight"><c- n>iter_reference_t</c-><c- o>&lt;</c-><c- n>C</c-><c- o>::</c-><c- n>const_iterator</c-><c- o>></c-></code> is <code class="highlight"><c- b>bool</c-></code>. These resolutions make the
+declarations well-formed, allowing code like <code class="highlight"><c- n>my_map</c-><c- p>[</c-><c- mi>1</c-><c- p>]</c-> <c- o>=</c-> true</code>.</p>
+   <p>The fix for the second problem is to admit <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> by name .
+<code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> does not meet the sequence container requirements. As just one
+example, <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> violates the <a href="https://eel.is/c++draft/container.requirements#container.reqmts-4"><code class="highlight"><c- n>X</c-><c- o>::</c-><c- n>reference</c-></code> equal
+<code class="highlight"><c- n>T</c-><c- o>&amp;</c-></code></a>
+container requirement. Other than the wording change, no other changes are
+required to address the second problem.</p>
+   <h2 class="heading settled" data-level="3" id="other-adaptors"><span class="secno">3. </span><span class="content">Other Container Adaptors</span><a class="self-link" href="#other-adaptors"></a></h2>
+   <p><code class="highlight"><c- n>stack</c-></code>, <code class="highlight"><c- n>queue</c-></code>, and <code class="highlight"><c- n>priority_queue</c-></code> do not suffer from this problem because their
+<code class="highlight"><c- n>reference</c-></code> and <code class="highlight"><c- n>const_reference</c-></code> typedefs are defined in terms of the
+underlying container. As an example, consider <a href="https://eel.is/c++draft/deque">[deque]</a>:</p>
+<pre class="highlight line-numbered"><span class="line-no" data-line="1"></span><span class="line"><c- k>namespace</c-> <c- nn>std</c-> <c- p>{</c-></span><span class="line-no" data-line="2"></span><span class="line">  <c- k>template</c-><c- o>&lt;</c-><c- k>class</c-> <c- nc>T</c-><c- p>,</c-> <c- k>class</c-> <c- nc>Container</c-> <c- o>=</c-> <c- n>vector</c-><c- o>&lt;</c-><c- n>T</c-><c- o>></c-><c- p>,</c-></span><span class="line-no" data-line="3"></span><span class="line">           <c- k>class</c-> <c- nc>Compare</c-> <c- o>=</c-> <c- n>less</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>Container</c-><c- o>::</c-><c- n>value_type</c-><c- o>>></c-></span><span class="line-no" data-line="4"></span><span class="line">  <c- k>class</c-> <c- nc>priority_queue</c-> <c- p>{</c-></span><span class="line-no" data-line="5"></span><span class="line">  <c- k>public</c-><c- o>:</c-></span><span class="line-no" data-line="6"></span><span class="line">    <c- k>using</c-> <c- n>value_type</c->      <c- o>=</c-> <c- n>Container</c-><c- o>::</c-><c- n>value_type</c-><c- p>;</c-></span><span class="line-no" data-line="7"></span><span class="line">    <c- k>using</c-> <c- n>reference</c->       <c- o>=</c-> <c- n>Container</c-><c- o>::</c-><c- n>reference</c-><c- p>;</c-></span><span class="line-no" data-line="8"></span><span class="line">    <c- k>using</c-> <c- n>const_reference</c-> <c- o>=</c-> <c- n>Container</c-><c- o>::</c-><c- n>const_reference</c-><c- p>;</c-></span><span class="line-no" data-line="9"></span><span class="line">    <c- k>using</c-> <c- n>size_type</c->       <c- o>=</c-> <c- n>Container</c-><c- o>::</c-><c- n>size_type</c-><c- p>;</c-></span><span class="line-no" data-line="10"></span><span class="line">    <c- k>using</c-> <c- n>container_type</c->  <c- o>=</c-> <c- n>Container</c-><c- p>;</c-></span><span class="line-no" data-line="11"></span><span class="line">    <c- k>using</c-> <c- n>value_compare</c->   <c- o>=</c-> <c- n>Compare</c-><c- p>;</c-></span><span class="line-no" data-line="12"></span><span class="line">    <c- c1>// ...</c-></span></pre>
+   <p>In these cases, the adaptors expose whatever reference type the underlying container
+provides. In the case of <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code>, <code class="highlight"><c- n>reference</c-></code> resolves to
+<code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>>::</c-><c- n>reference</c-></code>, which is the proxy class.</p>
+   <h2 class="heading settled" data-level="4" id="wording"><span class="secno">4. </span><span class="content">Proposed Wording</span><a class="self-link" href="#wording"></a></h2>
+   <p>
+    Insertions are shown as 
+    <ins>green text</ins>
+    
+and deletions as 
+    <del>red strike-through text</del>
+    .
+   </p>
+   <h3 class="heading settled" data-level="4.1" id="flat-map"><span class="secno">4.1. </span><span class="content"><a href="https://eel.is/c++draft/flat.map">[flat.map]</a></span><a class="self-link" href="#flat-map"></a></h3>
+   <p>Modify <a href="https://eel.is/c++draft/flat.map#overview-7">[flat.map.overview]/7</a>
+as follows:</p>
+   <blockquote class="wording">
+    <p>
+     Any type <code class="highlight"><c- n>C</c-></code> that meets the sequence container requirements
+(<a href="https://eel.is/c++draft/sequence.reqmts">[sequence.reqmts]</a>)
+     <ins>,
+or <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> (<a href="https://eel.is/c++draft/vector.bool">[vector.bool]</a>),</ins>
+     
+can be used to instantiate <code class="highlight"><c- n>flat_map</c-></code>, as long as
+<code class="highlight"><c- n>C</c-><c- o>::</c-><c- n>iterator</c-></code> meets the <em>Cpp17RandomAccessIterator</em> requirements
+and invocations of member functions <code class="highlight"><c- n>C</c-><c- o>::</c-><c- n>size</c-></code> and
+<code class="highlight"><c- n>C</c-><c- o>::</c-><c- n>max_size</c-></code> do not exit via an exception. In particular,
+<code class="highlight"><c- n>vector</c-></code> (<a href="https://eel.is/c++draft/vector">[vector]</a>)
+     <ins>,
+<code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code>,</ins>
+      and <code class="highlight"><c- n>deque</c-></code>
+(<a href="https://eel.is/c++draft/deque">[deque]</a>) can be used.
+<br><br>
+[<em>Note 3</em>: 
+     <del><code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> is not a sequence container.</del>
+     <ins>While <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> is not a sequence container, it provides the necessary interface and proxy iterators to be supported here.</ins>
+      — <em>end note</em>]
+    </p>
+   </blockquote>
+   <p>Modify <a href="https://eel.is/c++draft/flat.map.defn">[flat.map.defn]</a> as
+follows:</p>
+   <blockquote class="wording">
+<pre class="highlight"><c- k>namespace</c-> <c- nn>std</c-> <c- p>{</c->
+  <c- k>template</c-><c- o>&lt;</c-><c- k>class</c-> <c- nc>Key</c-><c- p>,</c-> <c- k>class</c-> <c- nc>T</c-><c- p>,</c-> <c- k>class</c-> <c- nc>Compare</c-> <c- o>=</c-> <c- n>less</c-><c- o>&lt;</c-><c- n>Key</c-><c- o>></c-><c- p>,</c->
+           <c- k>class</c-> <c- nc>KeyContainer</c-> <c- o>=</c-> <c- n>vector</c-><c- o>&lt;</c-><c- n>Key</c-><c- o>></c-><c- p>,</c-> <c- k>class</c-> <c- nc>MappedContainer</c-> <c- o>=</c-> <c- n>vector</c-><c- o>&lt;</c-><c- n>T</c-><c- o>>></c->
+  <c- k>class</c-> <c- nc>flat_map</c-> <c- p>{</c->
+  <c- k>public</c-><c- o>:</c->
+    <c- c1>// types</c->
+    <c- k>using</c-> <c- n>key_type</c->                <c- o>=</c-> <c- n>Key</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>mapped_type</c->             <c- o>=</c-> <c- n>T</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>value_type</c->              <c- o>=</c-> <c- n>pair</c-><c- o>&lt;</c-><c- n>key_type</c-><c- p>,</c-> <c- n>mapped_type</c-><c- o>></c-><c- p>;</c->
+    <c- k>using</c-> <c- n>key_compare</c->             <c- o>=</c-> <c- n>Compare</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>value_compare</c->           <c- o>=</c-> <em><c- n>unspecified</c-></em><c- p>;</c->
+<del>    <c- k>using</c-> <c- n>reference</c->              <c- o>=</c-> <c- n>pair</c-><c- o>&lt;</c-><c- k>const</c-> <c- n>key_type</c-><c- o>&amp;</c-><c- p>,</c-> <c- n>mapped_type</c-><c- o>&amp;></c-><c- p>;</c-></del>
+<del>    <c- k>using</c-> <c- n>const_reference</c->        <c- o>=</c-> <c- n>pair</c-><c- o>&lt;</c-><c- k>const</c-> <c- n>key_type</c-><c- o>&amp;</c-><c- p>,</c-> <c- k>const</c-> <c- n>mapped_type</c-><c- o>&amp;></c-><c- p>;</c-></del>
+<ins>    <c- k>using</c-> <em><c- n>key</c-><c- o>-</c-><c- k>const</c-><c- o>-</c-><c- n>reference</c-></em>    <c- o>=</c-> <c- n>iter_reference_t</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>KeyContainer</c-><c- o>::</c-><c- n>const_iterator</c-><c- o>></c-><c- p>;</c->     <c- c1>// exposition only</c-></ins>
+<ins>    <c- k>using</c-> <em><c- n>mapped</c-><c- o>-</c-><c- n>reference</c-></em>       <c- o>=</c-> <c- n>iter_reference_t</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>MappedContainer</c-><c- o>::</c-><c- n>iterator</c-><c- o>></c-><c- p>;</c->        <c- c1>// exposition only</c-></ins>
+<ins>    <c- k>using</c-> <em><c- n>mapped</c-><c- o>-</c-><c- k>const</c-><c- o>-</c-><c- n>reference</c-></em> <c- o>=</c-> <c- n>iter_reference_t</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>MappedContainer</c-><c- o>::</c-><c- n>const_iterator</c-><c- o>></c-><c- p>;</c->  <c- c1>// exposition only</c-></ins>
+<ins>    <c- k>using</c-> <c- n>reference</c->              <c- o>=</c-> <c- n>pair</c-><c- o>&lt;</c-><c- n>key</c-><c- o>-</c-><c- k>const</c-><c- o>-</c-><c- n>reference</c-><c- p>,</c-> <c- n>mapped</c-><c- o>-</c-><c- n>reference</c-><c- o>></c-><c- p>;</c-></ins>
+<ins>    <c- k>using</c-> <c- n>const_reference</c->        <c- o>=</c-> <c- n>pair</c-><c- o>&lt;</c-><c- n>key</c-><c- o>-</c-><c- k>const</c-><c- o>-</c-><c- n>reference</c-><c- p>,</c-> <c- n>mapped</c-><c- o>-</c-><c- k>const</c-><c- o>-</c-><c- n>reference</c-><c- o>></c-><c- p>;</c-></ins>
+    <c- k>using</c-> <c- n>size_type</c->               <c- o>=</c-> <c- b>size_t</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>difference_type</c->         <c- o>=</c-> <c- b>ptrdiff_t</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>iterator</c->                <c- o>=</c-> <em><c- n>implementation</c-><c- o>-</c-><c- n>defined</c-></em><c- p>;</c->     <c- c1>// see </c-><a href="https://eel.is/c++draft/container.requirements"><c- c1>[container.requirements]</c-></a>
+    <c- k>using</c-> <c- n>const_iterator</c->          <c- o>=</c-> <em><c- n>implementation</c-><c- o>-</c-><c- n>defined</c-></em><c- p>;</c->     <c- c1>// see </c-><a href="https://eel.is/c++draft/container.requirements"><c- c1>[container.requirements]</c-></a>
+    <c- k>using</c-> <c- n>reverse_iterator</c->        <c- o>=</c-> <c- n>std</c-><c- o>::</c-><c- n>reverse_iterator</c-><c- o>&lt;</c-><c- n>iterator</c-><c- o>></c-><c- p>;</c->
+    <c- k>using</c-> <c- n>const_reverse_iterator</c->  <c- o>=</c-> <c- n>std</c-><c- o>::</c-><c- n>reverse_iterator</c-><c- o>&lt;</c-><c- n>const_iterator</c-><c- o>></c-><c- p>;</c->
+
+    <c- k>using</c-> <c- n>key_container_type</c->      <c- o>=</c-> <c- n>KeyContainer</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>mapped_container_type</c->   <c- o>=</c-> <c- n>MappedContainer</c-><c- p>;</c->
+
+    <c- c1>// ...</c->
+
+    <c- k>class</c-> <c- nc>value_compare</c-> <c- p>{</c->
+      <c- k>private</c-><c- o>:</c->
+        <c- n>key_compare</c-> <em><c- n>comp</c-></em><c- p>;</c->                                    <c- c1>// exposition only</c->
+        <c- k>constexpr</c-> <c- n>value_compare</c-><c- p>(</c-><c- n>key_compare</c-> <c- n>c</c-><c- p>)</c-> <c- o>:</c-> <em><c- n>comp</c-></em><c- p>(</c-><c- n>c</c-><c- p>)</c-> <c- p>{}</c->  <c- c1>// exposition only</c->
+
+      <c- k>public</c-><c- o>:</c->
+      <del>  <c- b>bool</c-> <c- k>operator</c-><c- p>()(</c-><c- n>const_reference</c-> <c- n>x</c-><c- p>,</c-> <c- n>const_reference</c-> <c- n>y</c-><c- p>)</c-> <c- k>const</c-> <c- p>{</c-></del>
+      <ins>  <c- b>bool</c-> <c- nf>operator</c-><c- p>()(</c-><c- n>pair</c-><c- o>&lt;</c-><c- k>const</c-> <c- n>key_type</c-><c- o>&amp;</c-><c- p>,</c-> <c- k>const</c-> <c- n>mapped_type</c-><c- o>&amp;></c-> <c- n>x</c-><c- p>,</c-> <c- n>pair</c-><c- o>&lt;</c-><c- k>const</c-> <c- n>key_type</c-><c- o>&amp;</c-><c- p>,</c-> <c- k>const</c-> <c- n>mapped_type</c-><c- o>&amp;></c-> <c- n>y</c-><c- p>)</c-> <c- k>const</c-> <c- p>{</c-></ins>
+          <c- k>return</c-> <c- n>comp</c-><c- p>(</c-><c- n>x</c-><c- p>.</c-><c- n>first</c-><c- p>,</c-> <c- n>y</c-><c- p>.</c-><c- n>first</c-><c- p>);</c->
+        <c- p>}</c->
+    <c- p>};</c->
+
+    <c- c1>// ...</c->
+
+<c- p>};</c-> <c- p>}</c->
+
+</pre>
+   </blockquote>
+   <p>Modify <a href="https://eel.is/c++draft/flat.map.access">[flat.map.access]</a>
+as follows:</p>
+   <blockquote class="wording">
+<pre class="highlight"><del><c- n>mapped_type</c-><c- o>&amp;</c-> <c- k>operator</c-><c- p>[](</c-><c- k>const</c-> <c- n>key_type</c-><c- o>&amp;</c-> <c- n>x</c-><c- p>);</c-></del>
+<ins><c- n>iter_reference_t</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>MappedContainer</c-><c- o>::</c-><c- n>iterator</c-><c- o>></c-> <c- k>operator</c-><c- p>[](</c-><c- k>const</c-> <c- n>key_type</c-><c- o>&amp;</c-> <c- n>x</c-><c- p>);</c-></ins>
+
+<del><c- n>mapped_type</c-><c- o>&amp;</c-> <c- k>operator</c-><c- p>[](</c-><c- n>key_type</c-><c- o>&amp;&amp;</c-> <c- n>x</c-><c- p>);</c-></del>
+<ins><c- n>iter_reference_t</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>MappedContainer</c-><c- o>::</c-><c- n>iterator</c-><c- o>></c-> <c- k>operator</c-><c- p>[](</c-><c- n>key_type</c-><c- o>&amp;&amp;</c-> <c- n>x</c-><c- p>);</c-></ins>
+
+<c- k>template</c-><c- o>&lt;</c-><c- k>class</c-> <c- nc>K</c-><c- o>></c->
+<del>  <c- n>mapped_type</c-><c- o>&amp;</c-> <c- k>operator</c-><c- p>[](</c-><c- n>K</c-><c- o>&amp;&amp;</c-> <c- n>x</c-><c- p>);</c-></del>
+<ins>  <c- n>iter_reference_t</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>MappedContainer</c-><c- o>::</c-><c- n>iterator</c-><c- o>></c-> <c- k>operator</c-><c- p>[](</c-><c- n>K</c-><c- o>&amp;&amp;</c-> <c- n>x</c-><c- p>);</c-></ins>
+
+<del><c- n>mapped_type</c-><c- o>&amp;</c-> <c- nf>at</c-><c- p>(</c-><c- k>const</c-> <c- n>key_type</c-><c- o>&amp;</c-> <c- n>x</c-><c- p>);</c-></del>
+<ins><c- n>iter_reference_t</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>MappedContainer</c-><c- o>::</c-><c- n>iterator</c-><c- o>></c-> <c- n>at</c-><c- p>(</c-><c- k>const</c-> <c- n>key_type</c-><c- o>&amp;</c-> <c- n>x</c-><c- p>);</c-></ins>
+
+<del><c- k>const</c-> <c- n>mapped_type</c-><c- o>&amp;</c-> <c- nf>at</c-><c- p>(</c-><c- k>const</c-> <c- n>key_type</c-><c- o>&amp;</c-> <c- n>x</c-><c- p>)</c-> <c- k>const</c-><c- p>;</c-></del>
+<ins><c- n>iter_reference_t</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>MappedContainer</c-><c- o>::</c-><c- n>const_iterator</c-><c- o>></c-> <c- n>at</c-><c- p>(</c-><c- k>const</c-> <c- n>key_type</c-><c- o>&amp;</c-> <c- n>x</c-><c- p>)</c-> <c- k>const</c-><c- p>;</c-></ins>
+
+<c- k>template</c-><c- o>&lt;</c-><c- k>class</c-> <c- nc>K</c-><c- o>></c->
+<del>  <c- n>mapped_type</c-><c- o>&amp;</c-> <c- n>at</c-><c- p>(</c-><c- k>const</c-> <c- n>K</c-><c- o>&amp;</c-> <c- n>x</c-><c- p>);</c-></del>
+<ins>  <c- n>iter_reference_t</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>MappedContainer</c-><c- o>::</c-><c- n>iterator</c-><c- o>></c-> <c- n>at</c-><c- p>(</c-><c- k>const</c-> <c- n>K</c-><c- o>&amp;</c-> <c- n>x</c-><c- p>);</c-></ins>
+
+<c- k>template</c-><c- o>&lt;</c-><c- k>class</c-> <c- nc>K</c-><c- o>></c->
+<del>  <c- k>const</c-> <c- n>mapped_type</c-><c- o>&amp;</c-> <c- n>at</c-><c- p>(</c-><c- k>const</c-> <c- n>K</c-><c- o>&amp;</c-> <c- n>x</c-><c- p>)</c-> <c- k>const</c-><c- p>;</c-></del>
+<ins>  <c- n>iter_reference_t</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>MappedContainer</c-><c- o>::</c-><c- n>const_iterator</c-><c- o>></c-> <c- n>at</c-><c- p>(</c-><c- k>const</c-> <c- n>K</c-><c- o>&amp;</c-> <c- n>x</c-><c- p>)</c-> <c- k>const</c-><c- p>;</c-></ins>
+</pre>
+   </blockquote>
+   <h3 class="heading settled" data-level="4.2" id="flat-multimap"><span class="secno">4.2. </span><span class="content"><a href="https://eel.is/c++draft/flat.multimap">[flat.multimap]</a></span><a class="self-link" href="#flat-multimap"></a></h3>
+   <p>Modify
+<a href="https://eel.is/c++draft/flat.multimap#overview-7">[flat.multimap.overview]/7</a>
+as follows:</p>
+   <blockquote class="wording">
+    <p>
+     Any type <code class="highlight"><c- n>C</c-></code> that meets the sequence container requirements
+(<a href="https://eel.is/c++draft/sequence.reqmts">[sequence.reqmts]</a>)
+     <ins>,
+or <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> (<a href="https://eel.is/c++draft/vector.bool">[vector.bool]</a>),</ins>
+     
+can be used to instantiate <code class="highlight"><c- n>flat_multimap</c-></code>, as long as
+<code class="highlight"><c- n>C</c-><c- o>::</c-><c- n>iterator</c-></code> meets the <em>Cpp17RandomAccessIterator</em> requirements
+and invocations of member functions <code class="highlight"><c- n>C</c-><c- o>::</c-><c- n>size</c-></code> and
+<code class="highlight"><c- n>C</c-><c- o>::</c-><c- n>max_size</c-></code> do not exit via an exception. In particular,
+<code class="highlight"><c- n>vector</c-></code> (<a href="https://eel.is/c++draft/vector">[vector]</a>)
+     <ins>,
+<code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code>,</ins>
+      and <code class="highlight"><c- n>deque</c-></code>
+(<a href="https://eel.is/c++draft/deque">[deque]</a>) can be used.
+<br><br>
+[<em>Note 3</em>: 
+     <del><code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> is not a sequence container.</del>
+     <ins>While <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> is not a sequence container, it provides the necessary interface and proxy iterators to be supported here.</ins>
+      — <em>end note</em>]
+    </p>
+   </blockquote>
+   <p>Modify
+<a href="https://eel.is/c++draft/flat.multimap.defn">[flat.multimap.defn]</a> as
+follows:</p>
+   <blockquote class="wording">
+<pre class="highlight"><c- k>namespace</c-> <c- nn>std</c-> <c- p>{</c->
+  <c- k>template</c-><c- o>&lt;</c-><c- k>class</c-> <c- nc>Key</c-><c- p>,</c-> <c- k>class</c-> <c- nc>T</c-><c- p>,</c-> <c- k>class</c-> <c- nc>Compare</c-> <c- o>=</c-> <c- n>less</c-><c- o>&lt;</c-><c- n>Key</c-><c- o>></c-><c- p>,</c->
+           <c- k>class</c-> <c- nc>KeyContainer</c-> <c- o>=</c-> <c- n>vector</c-><c- o>&lt;</c-><c- n>Key</c-><c- o>></c-><c- p>,</c-> <c- k>class</c-> <c- nc>MappedContainer</c-> <c- o>=</c-> <c- n>vector</c-><c- o>&lt;</c-><c- n>T</c-><c- o>>></c->
+  <c- k>class</c-> <c- nc>flat_multimap</c-> <c- p>{</c->
+  <c- k>public</c-><c- o>:</c->
+    <c- c1>// types</c->
+    <c- k>using</c-> <c- n>key_type</c->                <c- o>=</c-> <c- n>Key</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>mapped_type</c->             <c- o>=</c-> <c- n>T</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>value_type</c->              <c- o>=</c-> <c- n>pair</c-><c- o>&lt;</c-><c- n>key_type</c-><c- p>,</c-> <c- n>mapped_type</c-><c- o>></c-><c- p>;</c->
+    <c- k>using</c-> <c- n>key_compare</c->             <c- o>=</c-> <c- n>Compare</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>value_compare</c->           <c- o>=</c-> <em><c- n>unspecified</c-></em><c- p>;</c->
+<del>    <c- k>using</c-> <c- n>reference</c->              <c- o>=</c-> <c- n>pair</c-><c- o>&lt;</c-><c- k>const</c-> <c- n>key_type</c-><c- o>&amp;</c-><c- p>,</c-> <c- n>mapped_type</c-><c- o>&amp;></c-><c- p>;</c-></del>
+<del>    <c- k>using</c-> <c- n>const_reference</c->        <c- o>=</c-> <c- n>pair</c-><c- o>&lt;</c-><c- k>const</c-> <c- n>key_type</c-><c- o>&amp;</c-><c- p>,</c-> <c- k>const</c-> <c- n>mapped_type</c-><c- o>&amp;></c-><c- p>;</c-></del>
+<ins>    <c- k>using</c-> <em><c- n>key</c-><c- o>-</c-><c- k>const</c-><c- o>-</c-><c- n>reference</c-></em>    <c- o>=</c-> <c- n>iter_reference_t</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>KeyContainer</c-><c- o>::</c-><c- n>const_iterator</c-><c- o>></c-><c- p>;</c->     <c- c1>// exposition only</c-></ins>
+<ins>    <c- k>using</c-> <em><c- n>mapped</c-><c- o>-</c-><c- n>reference</c-></em>       <c- o>=</c-> <c- n>iter_reference_t</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>MappedContainer</c-><c- o>::</c-><c- n>iterator</c-><c- o>></c-><c- p>;</c->        <c- c1>// exposition only</c-></ins>
+<ins>    <c- k>using</c-> <em><c- n>mapped</c-><c- o>-</c-><c- k>const</c-><c- o>-</c-><c- n>reference</c-></em> <c- o>=</c-> <c- n>iter_reference_t</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>MappedContainer</c-><c- o>::</c-><c- n>const_iterator</c-><c- o>></c-><c- p>;</c->  <c- c1>// exposition only</c-></ins>
+<ins>    <c- k>using</c-> <c- n>reference</c->              <c- o>=</c-> <c- n>pair</c-><c- o>&lt;</c-><c- n>key</c-><c- o>-</c-><c- k>const</c-><c- o>-</c-><c- n>reference</c-><c- p>,</c-> <c- n>mapped</c-><c- o>-</c-><c- n>reference</c-><c- o>></c-><c- p>;</c-></ins>
+<ins>    <c- k>using</c-> <c- n>const_reference</c->        <c- o>=</c-> <c- n>pair</c-><c- o>&lt;</c-><c- n>key</c-><c- o>-</c-><c- k>const</c-><c- o>-</c-><c- n>reference</c-><c- p>,</c-> <c- n>mapped</c-><c- o>-</c-><c- k>const</c-><c- o>-</c-><c- n>reference</c-><c- o>></c-><c- p>;</c-></ins>
+    <c- k>using</c-> <c- n>size_type</c->               <c- o>=</c-> <c- b>size_t</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>difference_type</c->         <c- o>=</c-> <c- b>ptrdiff_t</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>iterator</c->                <c- o>=</c-> <em><c- n>implementation</c-><c- o>-</c-><c- n>defined</c-></em><c- p>;</c->     <c- c1>// see </c-><a href="https://eel.is/c++draft/container.requirements"><c- c1>[container.requirements]</c-></a>
+    <c- k>using</c-> <c- n>const_iterator</c->          <c- o>=</c-> <em><c- n>implementation</c-><c- o>-</c-><c- n>defined</c-></em><c- p>;</c->     <c- c1>// see </c-><a href="https://eel.is/c++draft/container.requirements"><c- c1>[container.requirements]</c-></a>
+    <c- k>using</c-> <c- n>reverse_iterator</c->        <c- o>=</c-> <c- n>std</c-><c- o>::</c-><c- n>reverse_iterator</c-><c- o>&lt;</c-><c- n>iterator</c-><c- o>></c-><c- p>;</c->
+    <c- k>using</c-> <c- n>const_reverse_iterator</c->  <c- o>=</c-> <c- n>std</c-><c- o>::</c-><c- n>reverse_iterator</c-><c- o>&lt;</c-><c- n>const_iterator</c-><c- o>></c-><c- p>;</c->
+
+    <c- k>using</c-> <c- n>key_container_type</c->      <c- o>=</c-> <c- n>KeyContainer</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>mapped_container_type</c->   <c- o>=</c-> <c- n>MappedContainer</c-><c- p>;</c->
+
+    <c- c1>// ...</c->
+
+    <c- k>class</c-> <c- nc>value_compare</c-> <c- p>{</c->
+      <c- k>private</c-><c- o>:</c->
+        <c- n>key_compare</c-> <em><c- n>comp</c-></em><c- p>;</c->                                    <c- c1>// exposition only</c->
+        <c- k>constexpr</c-> <c- n>value_compare</c-><c- p>(</c-><c- n>key_compare</c-> <c- n>c</c-><c- p>)</c-> <c- o>:</c-> <em><c- n>comp</c-></em><c- p>(</c-><c- n>c</c-><c- p>)</c-> <c- p>{}</c->  <c- c1>// exposition only</c->
+
+      <c- k>public</c-><c- o>:</c->
+      <del>  <c- b>bool</c-> <c- k>operator</c-><c- p>()(</c-><c- n>const_reference</c-> <c- n>x</c-><c- p>,</c-> <c- n>const_reference</c-> <c- n>y</c-><c- p>)</c-> <c- k>const</c-> <c- p>{</c-></del>
+      <ins>  <c- b>bool</c-> <c- nf>operator</c-><c- p>()(</c-><c- n>pair</c-><c- o>&lt;</c-><c- k>const</c-> <c- n>key_type</c-><c- o>&amp;</c-><c- p>,</c-> <c- k>const</c-> <c- n>mapped_type</c-><c- o>&amp;></c-> <c- n>x</c-><c- p>,</c-> <c- n>pair</c-><c- o>&lt;</c-><c- k>const</c-> <c- n>key_type</c-><c- o>&amp;</c-><c- p>,</c-> <c- k>const</c-> <c- n>mapped_type</c-><c- o>&amp;></c-> <c- n>y</c-><c- p>)</c-> <c- k>const</c-> <c- p>{</c-></ins>
+          <c- k>return</c-> <c- n>comp</c-><c- p>(</c-><c- n>x</c-><c- p>.</c-><c- n>first</c-><c- p>,</c-> <c- n>y</c-><c- p>.</c-><c- n>first</c-><c- p>);</c->
+        <c- p>}</c->
+    <c- p>};</c->
+
+    <c- c1>// ...</c->
+
+<c- p>};</c-> <c- p>}</c->
+
+</pre>
+   </blockquote>
+   <h3 class="heading settled" data-level="4.3" id="flat-set"><span class="secno">4.3. </span><span class="content"><a href="https://eel.is/c++draft/flat.set">[flat.set]</a></span><a class="self-link" href="#flat-set"></a></h3>
+   <p>Modify <a href="https://eel.is/c++draft/flat.set#overview-7">[flat.set.overview]/7</a>
+as follows:</p>
+   <blockquote class="wording">
+    <p>
+     Any sequence container
+(<a href="https://eel.is/c++draft/sequence.reqmts">[sequence.reqmts]</a>)
+supporting <em>Cpp17RandomAccessIterator</em>
+     <ins>,
+or <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> (<a href="https://eel.is/c++draft/vector.bool">[vector.bool]</a>),</ins>
+     
+can be used to instantiate <code class="highlight"><c- n>flat_set</c-></code>. In particular, <code class="highlight"><c- n>vector</c-></code>
+(<a href="https://eel.is/c++draft/vector">[vector]</a>)
+     <ins>,
+<code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code>,</ins>
+      and <code class="highlight"><c- n>deque</c-></code>
+(<a href="https://eel.is/c++draft/deque">[deque]</a>) can be used.
+<br><br>
+[<em>Note 3</em>: 
+     <del><code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> is not a sequence container.</del>
+     <ins>While <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> is not a sequence container, it provides the necessary interface and proxy iterators to be supported here.</ins>
+      — <em>end note</em>]
+    </p>
+   </blockquote>
+   <p>Modify <a href="https://eel.is/c++draft/flat.set.defn">[flat.set.defn]</a> as
+follows:</p>
+   <blockquote class="wording">
+<pre class="highlight"><c- k>namespace</c-> <c- nn>std</c-> <c- p>{</c->
+  <c- k>template</c-><c- o>&lt;</c-><c- k>class</c-> <c- nc>Key</c-><c- p>,</c-> <c- k>class</c-> <c- nc>Compare</c-> <c- o>=</c-> <c- n>less</c-><c- o>&lt;</c-><c- n>Key</c-><c- o>></c-><c- p>,</c-> <c- k>class</c-> <c- nc>KeyContainer</c-> <c- o>=</c-> <c- n>vector</c-><c- o>&lt;</c-><c- n>Key</c-><c- o>>></c->
+  <c- k>class</c-> <c- nc>flat_set</c-> <c- p>{</c->
+  <c- k>public</c-><c- o>:</c->
+    <c- c1>// types</c->
+    <c- k>using</c-> <c- n>key_type</c->                <c- o>=</c-> <c- n>Key</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>value_type</c->              <c- o>=</c-> <c- n>Key</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>key_compare</c->             <c- o>=</c-> <c- n>Compare</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>value_compare</c->           <c- o>=</c-> <c- n>Compare</c-><c- p>;</c->
+<del>    <c- k>using</c-> <c- n>reference</c->              <c- o>=</c-> <c- n>value_type</c-><c- o>&amp;</c-><c- p>;</c-></del>
+<del>    <c- k>using</c-> <c- n>const_reference</c->        <c- o>=</c-> <c- k>const</c-> <c- n>value_type</c-><c- o>&amp;</c-><c- p>;</c-></del>
+<ins>    <c- k>using</c-> <c- n>reference</c->              <c- o>=</c-> <c- n>iter_reference_t</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>KeyContainer</c-><c- o>::</c-><c- n>iterator</c-><c- o>></c-><c- p>;</c-></ins>
+<ins>    <c- k>using</c-> <c- n>const_reference</c->        <c- o>=</c-> <c- n>iter_reference_t</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>KeyContainer</c-><c- o>::</c-><c- n>const_iterator</c-><c- o>></c-><c- p>;</c-></ins>
+    <c- k>using</c-> <c- n>size_type</c->               <c- o>=</c-> <c- k>typename</c-> <c- nc>KeyContainer</c-><c- o>::</c-><c- n>size_type</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>difference_type</c->         <c- o>=</c-> <c- k>typename</c-> <c- nc>KeyContainer</c-><c- o>::</c-><c- n>difference_type</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>iterator</c->                <c- o>=</c-> <em><c- n>implementation</c-><c- o>-</c-><c- n>defined</c-></em><c- p>;</c->     <c- c1>// see </c-><a href="https://eel.is/c++draft/container.requirements"><c- c1>[container.requirements]</c-></a>
+    <c- k>using</c-> <c- n>const_iterator</c->          <c- o>=</c-> <c- n>iterator</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>reverse_iterator</c->        <c- o>=</c-> <c- n>std</c-><c- o>::</c-><c- n>reverse_iterator</c-><c- o>&lt;</c-><c- n>iterator</c-><c- o>></c-><c- p>;</c->
+    <c- k>using</c-> <c- n>const_reverse_iterator</c->  <c- o>=</c-> <c- n>std</c-><c- o>::</c-><c- n>reverse_iterator</c-><c- o>&lt;</c-><c- n>const_iterator</c-><c- o>></c-><c- p>;</c->
+    <c- k>using</c-> <c- n>container_type</c->          <c- o>=</c-> <c- n>KeyContainer</c-><c- p>;</c->
+    <c- c1>// ...</c->
+  <c- p>};</c->
+<c- p>}</c->
+</pre>
+   </blockquote>
+   <h3 class="heading settled" data-level="4.4" id="flat-multiset"><span class="secno">4.4. </span><span class="content"><a href="https://eel.is/c++draft/flat.multiset">[flat.multiset]</a></span><a class="self-link" href="#flat-multiset"></a></h3>
+   <p>Modify
+<a href="https://eel.is/c++draft/flat.multiset#overview-7">[flat.multiset.overview]/7</a>
+as follows:</p>
+   <blockquote class="wording">
+    <p>
+     Any sequence container
+(<a href="https://eel.is/c++draft/sequence.reqmts">[sequence.reqmts]</a>)
+supporting <em>Cpp17RandomAccessIterator</em>
+     <ins>,
+or <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> (<a href="https://eel.is/c++draft/vector.bool">[vector.bool]</a>),</ins>
+     
+can be used to instantiate <code class="highlight"><c- n>flat_multiset</c-></code>. In particular, <code class="highlight"><c- n>vector</c-></code>
+(<a href="https://eel.is/c++draft/vector">[vector]</a>)
+     <ins>,
+<code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code>,</ins>
+      and <code class="highlight"><c- n>deque</c-></code>
+(<a href="https://eel.is/c++draft/deque">[deque]</a>) can be used.
+<br><br>
+[<em>Note 3</em>: 
+     <del><code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> is not a sequence container.</del>
+     <ins>While <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> is not a sequence container, it provides the necessary interface and proxy iterators to be supported here.</ins>
+      — <em>end note</em>]
+    </p>
+   </blockquote>
+   <p>Modify <a href="https://eel.is/c++draft/flat.multiset.defn">[flat.multiset.defn]</a>
+as follows:</p>
+   <blockquote class="wording">
+<pre class="highlight"><c- k>namespace</c-> <c- nn>std</c-> <c- p>{</c->
+  <c- k>template</c-><c- o>&lt;</c-><c- k>class</c-> <c- nc>Key</c-><c- p>,</c-> <c- k>class</c-> <c- nc>Compare</c-> <c- o>=</c-> <c- n>less</c-><c- o>&lt;</c-><c- n>Key</c-><c- o>></c-><c- p>,</c-> <c- k>class</c-> <c- nc>KeyContainer</c-> <c- o>=</c-> <c- n>vector</c-><c- o>&lt;</c-><c- n>Key</c-><c- o>>></c->
+  <c- k>class</c-> <c- nc>flat_multiset</c-> <c- p>{</c->
+  <c- k>public</c-><c- o>:</c->
+    <c- c1>// types</c->
+    <c- k>using</c-> <c- n>key_type</c->                <c- o>=</c-> <c- n>Key</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>value_type</c->              <c- o>=</c-> <c- n>Key</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>key_compare</c->             <c- o>=</c-> <c- n>Compare</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>value_compare</c->           <c- o>=</c-> <c- n>Compare</c-><c- p>;</c->
+<del>    <c- k>using</c-> <c- n>reference</c->              <c- o>=</c-> <c- n>value_type</c-><c- o>&amp;</c-><c- p>;</c-></del>
+<del>    <c- k>using</c-> <c- n>const_reference</c->        <c- o>=</c-> <c- k>const</c-> <c- n>value_type</c-><c- o>&amp;</c-><c- p>;</c-></del>
+<ins>    <c- k>using</c-> <c- n>reference</c->              <c- o>=</c-> <c- n>iter_reference_t</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>KeyContainer</c-><c- o>::</c-><c- n>iterator</c-><c- o>></c-><c- p>;</c-></ins>
+<ins>    <c- k>using</c-> <c- n>const_reference</c->        <c- o>=</c-> <c- n>iter_reference_t</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>KeyContainer</c-><c- o>::</c-><c- n>const_iterator</c-><c- o>></c-><c- p>;</c-></ins>
+    <c- k>using</c-> <c- n>size_type</c->               <c- o>=</c-> <c- k>typename</c-> <c- nc>KeyContainer</c-><c- o>::</c-><c- n>size_type</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>difference_type</c->         <c- o>=</c-> <c- k>typename</c-> <c- nc>KeyContainer</c-><c- o>::</c-><c- n>difference_type</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>iterator</c->                <c- o>=</c-> <em><c- n>implementation</c-><c- o>-</c-><c- n>defined</c-></em><c- p>;</c->     <c- c1>// see </c-><a href="https://eel.is/c++draft/container.requirements"><c- c1>[container.requirements]</c-></a>
+    <c- k>using</c-> <c- n>const_iterator</c->          <c- o>=</c-> <c- n>iterator</c-><c- p>;</c->
+    <c- k>using</c-> <c- n>reverse_iterator</c->        <c- o>=</c-> <c- n>std</c-><c- o>::</c-><c- n>reverse_iterator</c-><c- o>&lt;</c-><c- n>iterator</c-><c- o>></c-><c- p>;</c->
+    <c- k>using</c-> <c- n>const_reverse_iterator</c->  <c- o>=</c-> <c- n>std</c-><c- o>::</c-><c- n>reverse_iterator</c-><c- o>&lt;</c-><c- n>const_iterator</c-><c- o>></c-><c- p>;</c->
+    <c- k>using</c-> <c- n>container_type</c->          <c- o>=</c-> <c- n>KeyContainer</c-><c- p>;</c->
+    <c- c1>// ...</c->
+  <c- p>};</c->
+<c- p>}</c->
+</pre>
+   </blockquote>
+   <h2 class="heading settled" data-level="5" id="impl"><span class="secno">5. </span><span class="content">Implementation Experience</span><a class="self-link" href="#impl"></a></h2>
+   <p>See <a href="https://github.com/llvm/llvm-project/compare/main...aryann:llvm-project:flatbool">libc++
+implementation</a>.</p>
+   <h2 class="heading settled" data-level="6" id="ack"><span class="secno">6. </span><span class="content">Acknowledgements</span><a class="self-link" href="#ack"></a></h2>
+   <p>Thanks to <a href="mailto:arthur.j.odwyer@gmail.com">Arthur O’Dwyer</a> for providing the
+original <a href="https://lists.isocpp.org/std-proposals/2026/05/18446.php">implementation
+idea</a> for supporting
+<code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code>.</p>
   </main>
 <script>
 (function() {

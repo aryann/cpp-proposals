@@ -1,49 +1,137 @@
 <pre class='metadata'>
-Title: Your Spec Title
-Shortname: your-spec
+Title: `vector<bool>` as an underlying container in flat adaptors
+Shortname: D????
 Level: 1
 Status: D
 Group: WG21
-Audience: LWG
+Audience: LEWG, LWG
 URL: http://example.com/url-this-spec-will-live-at
 Editor: Aryan Naraghi, aryan.naraghi@gmail.com
 Abstract:
-  Allow users to specify `bool` as a type in `std::flat_map`, `std::stack`, `std::queue`, and `std::priority_queue` without changing the default container.
+  Allow `vector<bool>` as an underlying container in `flat_map`, `flat_multimap`, `flat_set`, and `flat_multiset`, enabling `bool` as a key or mapped type with the default template arguments.
 Complain About: accidental-2119 yes, missing-example-ids yes
 Default Highlight: c++
 Markup Shorthands: markdown-inline yes, css no
 </pre>
 
+<style>
+ins {
+  background: hsl(120, 50%, 88%);
+  text-decoration: none;
+  border-radius: 0.3em;
+  padding: 0 0.2em;
+}
+
+del {
+  background: hsl(0, 60%, 92%);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: hsl(0, 40%, 35%);
+  border-radius: 0.3em;
+  padding: 0 0.2em;
+}
+
+blockquote.wording {
+  font-family: Georgia, 'Noto Serif', serif;
+  line-height: 1.5;
+}
+
+blockquote.wording pre {
+  font-family: 'Fira Code', Menlo, Consolas, monospace;
+  line-height: 1.4;
+}
+</style>
+
 Introduction {#intro}
 =====================
 
-`std::flat_map` is defined as follows:
+<a href="https://eel.is/c++draft/flat.map#defn">[flat.map.defn]</a> defines
+`flat_map` as:
 
 <xmp line-numbers="on">
 template<class Key, class T, class Compare = less<Key>,
-           class KeyContainer = vector<Key>, class MappedContainer = vector<T>>
-  class flat_map
+         class KeyContainer = vector<Key>, class MappedContainer = vector<T>>
+class flat_map {
 </xmp>
 
-Both `KeyContainer` and `MappedContainer` must be [sequence containers](https://eel.is/c++draft/flat.map#overview-7). Notably, this excludes `std::vector<bool>`.
+<a href="https://eel.is/c++draft/flat.map#overview-7">[flat.map.overview]/7</a>
+requires that `KeyContainer` and `MappedContainer` be sequence containers.
+Notably, `vector<bool>` [is
+not](https://eel.is/c++draft/flat.map#overview-note-3) a sequence container.
 
-This prevents users from defining a `std::flat_map` as follows:
+Because `KeyContainer` and `MappedContainer` both default to `vector`, the
+following code is ill-formed:
 
 <xmp line-numbers="on">
 std::flat_map<int, bool> my_map;
 </xmp>
 
-Instead, in this example, users are forced to override `MappedContainer` with a container that is a sequence container:
+To use `bool` as a mapped type, the user must specify an alternative sequence
+container, such as `deque`:
 
 <xmp line-numbers="on">
 std::flat_map<int, bool, std::less<int>, std::vector<int>, std::deque<bool>> my_map;
 </xmp>
 
-This formulation is overly verbose and unapproachable for new C++ developers.
+This formulation is verbose and requires the user to know exactly which
+alternative sequence container to drop in. Additionally, the compilation errors
+generated when a user fails to override the container are difficult to
+understand, especially for new C++ developers.
 
-In this proposal, we offer an amendment to `std::flat_map`, `std::flat_multimap`, `std::flat_set`, and `std::flat_multiset` such that `std::vector` can act as an underlying container even when the type is `bool`.
+A similar issue exists for `flat_multimmap`, `flat_set`, and `flat_multiset`.
 
-Note that the other three container adaptors, `std::stack`, `std::queue`, and `std::priority_queue` do not have the same problem because their `reference` and `const_reference` type aliases are defined on the underlying container. For example:
+This paper proposes changes to `flat_map`, `flat_multimap`, `flat_set`, and
+`flat_multiset` so that `vector<bool>` is usable as an underlying container without
+affecting any other conforming instantiations.
+
+Details {#details}
+==================
+
+Before covering the proposed wording changes, it is important to understand why
+`vector<bool>` cannot be used as the container in the `flat_` adaptors. We will
+center the discussion on `flat_map`, but the same concepts apply to the other
+three flat adaptors.
+
+There are two problems:
+
+1. **Incompatible Reference Types:** `reference`, `const_reference` and the
+    return types of `flat_map:operator[]` and `flat_map::at` are spelled in
+    terms of `mapped_type` and `value_type` (see <a
+    href="https://eel.is/c++draft/flat.map.defn">[flat.map.defn]</a>). The
+    reference type for `vector<bool>` is not `bool&`. It is a proxy class that
+    simulates a direct reference to a `bool`.
+
+1. **Sequence Container Requirement:** The sequence container requirement
+    explicitly excludes `vector<bool>` (see <a
+    href="https://eel.is/c++draft/flat.map#overview-7">[flat.map.overview]/7</a>).
+
+The fix for the first problem is to replace `T&` as the reference type with
+whatever reference type the underlying container's iterators produce (via
+`iter_reference_t`).
+
+For every container that is valid today this is a no-op.
+`iter_reference_t<C::iterator>` is `T&` and
+`iter_reference_t<C::const_iterator>` is `const T&`, so the typedefs and
+signatures remain unchanged for all currently-supported containers.
+
+For `vector<bool>`, `iter_reference_t<C::iterator>` is the proxy class type and
+`iter_reference_t<C::const_iterator>` is `bool`. These resolutions make the
+declarations well-formed, allowing code like `my_map[1] = true`. 
+
+The fix for the second problem is to admit `vector<bool>` by name .
+`vector<bool>` does not meet the sequence container requirements. As just one
+example, `vector<bool>` violates the [`X::reference` equal
+`T&`](https://eel.is/c++draft/container.requirements#container.reqmts-4)
+container requirement. Other than the wording change, no other changes are
+required to address the second problem.
+
+Other Container Adaptors {#other-adaptors}
+==========================================
+
+`stack`, `queue`, and `priority_queue` do not suffer from this problem because their
+`reference` and `const_reference` typedefs are defined in terms of the
+underlying container. As an example, consider <a
+href="https://eel.is/c++draft/deque">[deque]</a>:
 
 <xmp line-numbers="on">
 namespace std {
@@ -57,5 +145,315 @@ namespace std {
     using size_type       = Container::size_type;
     using container_type  = Container;
     using value_compare   = Compare;
+    // ...
 </xmp>
 
+In these cases, the adaptors expose whatever reference type the underlying container
+provides. In the case of `vector<bool>`, `reference` resolves to
+`vector<bool>::reference`, which is the proxy class.
+
+
+Proposed Wording {#wording}
+===========================
+
+Insertions are shown as <ins>green text</ins>
+and deletions as <del>red strike-through text</del>.
+
+<a href="https://eel.is/c++draft/flat.map">[flat.map]</a> {#flat-map}
+---------------------------------------------------------------------
+
+Modify <a href="https://eel.is/c++draft/flat.map#overview-7">[flat.map.overview]/7</a>
+as follows:
+
+<blockquote class="wording">
+<p>Any type <code>C</code> that meets the sequence container requirements
+(<a href="https://eel.is/c++draft/sequence.reqmts">[sequence.reqmts]</a>)<ins>,
+or <code>vector&lt;bool></code> (<a href="https://eel.is/c++draft/vector.bool">[vector.bool]</a>),</ins>
+can be used to instantiate <code>flat_map</code>, as long as
+<code>C::iterator</code> meets the <em>Cpp17RandomAccessIterator</em> requirements
+and invocations of member functions <code>C::size</code> and
+<code>C::max_size</code> do not exit via an exception. In particular,
+<code>vector</code> (<a href="https://eel.is/c++draft/vector">[vector]</a>)<ins>,
+<code>vector&lt;bool></code>,</ins> and <code>deque</code>
+(<a href="https://eel.is/c++draft/deque">[deque]</a>) can be used.
+<br /><br />
+[<em>Note 3</em>: <del><code>vector&lt;bool></code> is not a sequence container.</del><ins>While <code>vector&lt;bool></code> is not a sequence container, it provides the necessary interface and proxy iterators to be supported here.</ins> — <em>end note</em>]</p>
+</blockquote>
+
+Modify <a href="https://eel.is/c++draft/flat.map.defn">[flat.map.defn]</a> as
+follows:
+
+<blockquote class="wording">
+<pre highlight="c++">
+namespace std {
+  template&lt;class Key, class T, class Compare = less&lt;Key>,
+           class KeyContainer = vector&lt;Key>, class MappedContainer = vector&lt;T>>
+  class flat_map {
+  public:
+    // types
+    using key_type                = Key;
+    using mapped_type             = T;
+    using value_type              = pair&lt;key_type, mapped_type>;
+    using key_compare             = Compare;
+    using value_compare           = <em>unspecified</em>;
+<del>    using reference              = pair&lt;const key_type&, mapped_type&>;</del>
+<del>    using const_reference        = pair&lt;const key_type&, const mapped_type&>;</del>
+<ins>    using <em>key-const-reference</em>    = iter_reference_t&lt;typename KeyContainer::const_iterator&gt;;     // exposition only</ins>
+<ins>    using <em>mapped-reference</em>       = iter_reference_t&lt;typename MappedContainer::iterator&gt;;        // exposition only</ins>
+<ins>    using <em>mapped-const-reference</em> = iter_reference_t&lt;typename MappedContainer::const_iterator&gt;;  // exposition only</ins>
+<ins>    using reference              = pair&lt;key-const-reference, mapped-reference&gt;;</ins>
+<ins>    using const_reference        = pair&lt;key-const-reference, mapped-const-reference&gt;;</ins>
+    using size_type               = size_t;
+    using difference_type         = ptrdiff_t;
+    using iterator                = <em>implementation-defined</em>;     // see <a href="https://eel.is/c++draft/container.requirements">[container.requirements]</a>
+    using const_iterator          = <em>implementation-defined</em>;     // see <a href="https://eel.is/c++draft/container.requirements">[container.requirements]</a>
+    using reverse_iterator        = std::reverse_iterator&lt;iterator>;
+    using const_reverse_iterator  = std::reverse_iterator&lt;const_iterator>;
+
+    using key_container_type      = KeyContainer;
+    using mapped_container_type   = MappedContainer;
+
+    // ...
+
+    class value_compare {
+      private:
+        key_compare <em>comp</em>;                                    // exposition only
+        constexpr value_compare(key_compare c) : <em>comp</em>(c) {}  // exposition only
+
+      public:
+      <del>  bool operator()(const_reference x, const_reference y) const {</del>
+      <ins>  bool operator()(pair&lt;const key_type&, const mapped_type&> x, pair&lt;const key_type&, const mapped_type&> y) const {</ins>
+          return comp(x.first, y.first);
+        }
+    };
+
+    // ...
+
+}; }
+
+</pre>
+</blockquote>
+
+
+Modify <a href="https://eel.is/c++draft/flat.map.access">[flat.map.access]</a>
+as follows:
+
+<blockquote class="wording">
+<pre highlight="c++">
+<del>mapped_type& operator[](const key_type& x);</del>
+<ins>iter_reference_t&lt;typename MappedContainer::iterator> operator[](const key_type& x);</ins>
+
+<del>mapped_type& operator[](key_type&& x);</del>
+<ins>iter_reference_t&lt;typename MappedContainer::iterator> operator[](key_type&& x);</ins>
+
+template&lt;class K>
+<del>  mapped_type& operator[](K&& x);</del>
+<ins>  iter_reference_t&lt;typename MappedContainer::iterator> operator[](K&& x);</ins>
+
+<del>mapped_type& at(const key_type& x);</del>
+<ins>iter_reference_t&lt;typename MappedContainer::iterator> at(const key_type& x);</ins>
+
+<del>const mapped_type& at(const key_type& x) const;</del>
+<ins>iter_reference_t&lt;typename MappedContainer::const_iterator> at(const key_type& x) const;</ins>
+
+template&lt;class K>
+<del>  mapped_type& at(const K& x);</del>
+<ins>  iter_reference_t&lt;typename MappedContainer::iterator> at(const K& x);</ins>
+
+template&lt;class K>
+<del>  const mapped_type& at(const K& x) const;</del>
+<ins>  iter_reference_t&lt;typename MappedContainer::const_iterator> at(const K& x) const;</ins>
+</pre>
+</blockquote>
+
+<a href="https://eel.is/c++draft/flat.multimap">[flat.multimap]</a> {#flat-multimap}
+------------------------------------------------------------------------------------
+
+Modify
+<a href="https://eel.is/c++draft/flat.multimap#overview-7">[flat.multimap.overview]/7</a>
+as follows:
+
+<blockquote class="wording">
+<p>Any type <code>C</code> that meets the sequence container requirements
+(<a href="https://eel.is/c++draft/sequence.reqmts">[sequence.reqmts]</a>)<ins>,
+or <code>vector&lt;bool></code> (<a href="https://eel.is/c++draft/vector.bool">[vector.bool]</a>),</ins>
+can be used to instantiate <code>flat_multimap</code>, as long as
+<code>C::iterator</code> meets the <em>Cpp17RandomAccessIterator</em> requirements
+and invocations of member functions <code>C::size</code> and
+<code>C::max_size</code> do not exit via an exception. In particular,
+<code>vector</code> (<a href="https://eel.is/c++draft/vector">[vector]</a>)<ins>,
+<code>vector&lt;bool></code>,</ins> and <code>deque</code>
+(<a href="https://eel.is/c++draft/deque">[deque]</a>) can be used.
+<br /><br />
+[<em>Note 3</em>: <del><code>vector&lt;bool></code> is not a sequence container.</del><ins>While <code>vector&lt;bool></code> is not a sequence container, it provides the necessary interface and proxy iterators to be supported here.</ins> — <em>end note</em>]</p>
+</blockquote>
+
+Modify
+<a href="https://eel.is/c++draft/flat.multimap.defn">[flat.multimap.defn]</a> as
+follows:
+
+<blockquote class="wording">
+<pre highlight="c++">
+namespace std {
+  template&lt;class Key, class T, class Compare = less&lt;Key>,
+           class KeyContainer = vector&lt;Key>, class MappedContainer = vector&lt;T>>
+  class flat_multimap {
+  public:
+    // types
+    using key_type                = Key;
+    using mapped_type             = T;
+    using value_type              = pair&lt;key_type, mapped_type>;
+    using key_compare             = Compare;
+    using value_compare           = <em>unspecified</em>;
+<del>    using reference              = pair&lt;const key_type&, mapped_type&>;</del>
+<del>    using const_reference        = pair&lt;const key_type&, const mapped_type&>;</del>
+<ins>    using <em>key-const-reference</em>    = iter_reference_t&lt;typename KeyContainer::const_iterator>;     // exposition only</ins>
+<ins>    using <em>mapped-reference</em>       = iter_reference_t&lt;typename MappedContainer::iterator>;        // exposition only</ins>
+<ins>    using <em>mapped-const-reference</em> = iter_reference_t&lt;typename MappedContainer::const_iterator>;  // exposition only</ins>
+<ins>    using reference              = pair&lt;key-const-reference, mapped-reference>;</ins>
+<ins>    using const_reference        = pair&lt;key-const-reference, mapped-const-reference>;</ins>
+    using size_type               = size_t;
+    using difference_type         = ptrdiff_t;
+    using iterator                = <em>implementation-defined</em>;     // see <a href="https://eel.is/c++draft/container.requirements">[container.requirements]</a>
+    using const_iterator          = <em>implementation-defined</em>;     // see <a href="https://eel.is/c++draft/container.requirements">[container.requirements]</a>
+    using reverse_iterator        = std::reverse_iterator&lt;iterator>;
+    using const_reverse_iterator  = std::reverse_iterator&lt;const_iterator>;
+
+    using key_container_type      = KeyContainer;
+    using mapped_container_type   = MappedContainer;
+
+    // ...
+
+    class value_compare {
+      private:
+        key_compare <em>comp</em>;                                    // exposition only
+        constexpr value_compare(key_compare c) : <em>comp</em>(c) {}  // exposition only
+
+      public:
+      <del>  bool operator()(const_reference x, const_reference y) const {</del>
+      <ins>  bool operator()(pair&lt;const key_type&, const mapped_type&> x, pair&lt;const key_type&, const mapped_type&> y) const {</ins>
+          return comp(x.first, y.first);
+        }
+    };
+
+    // ...
+
+}; }
+
+</pre>
+</blockquote>
+
+<a href="https://eel.is/c++draft/flat.set">[flat.set]</a> {#flat-set}
+---------------------------------------------------------------------
+
+Modify <a href="https://eel.is/c++draft/flat.set#overview-7">[flat.set.overview]/7</a>
+as follows:
+
+<blockquote class="wording">
+<p>Any sequence container
+(<a href="https://eel.is/c++draft/sequence.reqmts">[sequence.reqmts]</a>)
+supporting <em>Cpp17RandomAccessIterator</em><ins>,
+or <code>vector&lt;bool></code> (<a href="https://eel.is/c++draft/vector.bool">[vector.bool]</a>),</ins>
+can be used to instantiate <code>flat_set</code>. In particular, <code>vector</code>
+(<a href="https://eel.is/c++draft/vector">[vector]</a>)<ins>,
+<code>vector&lt;bool></code>,</ins> and <code>deque</code>
+(<a href="https://eel.is/c++draft/deque">[deque]</a>) can be used.
+<br /><br />
+[<em>Note 3</em>: <del><code>vector&lt;bool></code> is not a sequence container.</del><ins>While <code>vector&lt;bool></code> is not a sequence container, it provides the necessary interface and proxy iterators to be supported here.</ins> — <em>end note</em>]</p>
+</blockquote>
+
+Modify <a href="https://eel.is/c++draft/flat.set.defn">[flat.set.defn]</a> as
+follows:
+
+<blockquote class="wording">
+<pre highlight="c++">
+namespace std {
+  template&lt;class Key, class Compare = less&lt;Key>, class KeyContainer = vector&lt;Key>>
+  class flat_set {
+  public:
+    // types
+    using key_type                = Key;
+    using value_type              = Key;
+    using key_compare             = Compare;
+    using value_compare           = Compare;
+<del>    using reference              = value_type&;</del>
+<del>    using const_reference        = const value_type&;</del>
+<ins>    using reference              = iter_reference_t&lt;typename KeyContainer::iterator>;</ins>
+<ins>    using const_reference        = iter_reference_t&lt;typename KeyContainer::const_iterator>;</ins>
+    using size_type               = typename KeyContainer::size_type;
+    using difference_type         = typename KeyContainer::difference_type;
+    using iterator                = <em>implementation-defined</em>;     // see <a href="https://eel.is/c++draft/container.requirements">[container.requirements]</a>
+    using const_iterator          = iterator;
+    using reverse_iterator        = std::reverse_iterator&lt;iterator>;
+    using const_reverse_iterator  = std::reverse_iterator&lt;const_iterator>;
+    using container_type          = KeyContainer;
+    // ...
+  };
+}
+</pre>
+</blockquote>
+
+<a href="https://eel.is/c++draft/flat.multiset">[flat.multiset]</a> {#flat-multiset}
+------------------------------------------------------------------------------------
+
+Modify
+<a href="https://eel.is/c++draft/flat.multiset#overview-7">[flat.multiset.overview]/7</a>
+as follows:
+
+<blockquote class="wording">
+<p>Any sequence container
+(<a href="https://eel.is/c++draft/sequence.reqmts">[sequence.reqmts]</a>)
+supporting <em>Cpp17RandomAccessIterator</em><ins>,
+or <code>vector&lt;bool></code> (<a href="https://eel.is/c++draft/vector.bool">[vector.bool]</a>),</ins>
+can be used to instantiate <code>flat_multiset</code>. In particular, <code>vector</code>
+(<a href="https://eel.is/c++draft/vector">[vector]</a>)<ins>,
+<code>vector&lt;bool></code>,</ins> and <code>deque</code>
+(<a href="https://eel.is/c++draft/deque">[deque]</a>) can be used.
+<br /><br />
+[<em>Note 3</em>: <del><code>vector&lt;bool></code> is not a sequence container.</del><ins>While <code>vector&lt;bool></code> is not a sequence container, it provides the necessary interface and proxy iterators to be supported here.</ins> — <em>end note</em>]</p>
+</blockquote>
+
+Modify <a href="https://eel.is/c++draft/flat.multiset.defn">[flat.multiset.defn]</a>
+as follows:
+
+<blockquote class="wording">
+<pre highlight="c++">
+namespace std {
+  template&lt;class Key, class Compare = less&lt;Key>, class KeyContainer = vector&lt;Key>>
+  class flat_multiset {
+  public:
+    // types
+    using key_type                = Key;
+    using value_type              = Key;
+    using key_compare             = Compare;
+    using value_compare           = Compare;
+<del>    using reference              = value_type&;</del>
+<del>    using const_reference        = const value_type&;</del>
+<ins>    using reference              = iter_reference_t&lt;typename KeyContainer::iterator>;</ins>
+<ins>    using const_reference        = iter_reference_t&lt;typename KeyContainer::const_iterator>;</ins>
+    using size_type               = typename KeyContainer::size_type;
+    using difference_type         = typename KeyContainer::difference_type;
+    using iterator                = <em>implementation-defined</em>;     // see <a href="https://eel.is/c++draft/container.requirements">[container.requirements]</a>
+    using const_iterator          = iterator;
+    using reverse_iterator        = std::reverse_iterator&lt;iterator>;
+    using const_reverse_iterator  = std::reverse_iterator&lt;const_iterator>;
+    using container_type          = KeyContainer;
+    // ...
+  };
+}
+</pre>
+</blockquote>
+
+Implementation Experience {#impl}
+=================================
+
+See [libc++
+implementation](https://github.com/llvm/llvm-project/compare/main...aryann:llvm-project:flatbool).
+
+Acknowledgements {#ack}
+=======================
+
+Thanks to [Arthur O'Dwyer](mailto:arthur.j.odwyer@gmail.com) for providing the
+original [implementation
+idea](https://lists.isocpp.org/std-proposals/2026/05/18446.php) for supporting
+`vector<bool>`.
