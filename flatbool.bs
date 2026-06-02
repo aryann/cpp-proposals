@@ -152,6 +152,19 @@ In these cases, the adaptors expose whatever reference type the underlying conta
 provides. In the case of `vector<bool>`, `reference` resolves to
 `vector<bool>::reference`, which is the proxy class.
 
+`bool` Keys and Sets {#bool-keys}
+====================================
+
+The case that motivates this proposal is `flat_map<K, bool>`. The same change also
+makes `bool` work as a key (`flat_map<bool, V>`, `flat_multimap<bool, V>`,
+`flat_set<bool>`, `flat_multiset<bool>`).
+
+`flat_map<bool, V>` and `flat_set<bool>` hold at most two entries.
+`flat_multimap<bool, V>` and `flat_multiset<bool>` hold at most two distinct
+keys. These instantiations are not particularly useful, and we don't expect
+people to use them often. However, it's more consistent to support them.
+Additionally, once `vector<bool>` is permitted on the mapped side, allowing it
+on the key side is trivial.
 
 Proposed Wording {#wording}
 ===========================

@@ -1564,7 +1564,7 @@ Possible extra rowspan handling
   <meta content="Bikeshed version 0a3d88311, updated Mon May 4 18:07:03 2026 +0000" name="generator">
   <link href="https://cppproposals.aryan.app/flatbool.html" rel="canonical">
   <link href="https://isocpp.org/favicon.ico" rel="icon">
-  <meta content="6e278ba23c3d041eaba75714ee54e120e6153187" name="revision">
+  <meta content="32d2f1b6a242e4be2b22bcbb0dc2fbc5c15c96db" name="revision">
   <meta content="dark light" name="color-scheme">
 <style>
 ins {
@@ -2213,16 +2213,17 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
     <li><a href="#intro"><span class="secno">1</span> <span class="content">Introduction</span></a>
     <li><a href="#details"><span class="secno">2</span> <span class="content">Details</span></a>
     <li><a href="#other-adaptors"><span class="secno">3</span> <span class="content">Other Container Adaptors</span></a>
+    <li><a href="#bool-keys"><span class="secno">4</span> <span class="content"><code class="highlight"><c- b>bool</c-></code> Keys and Sets</span></a>
     <li>
-     <a href="#wording"><span class="secno">4</span> <span class="content">Proposed Wording</span></a>
+     <a href="#wording"><span class="secno">5</span> <span class="content">Proposed Wording</span></a>
      <ol class="toc">
-      <li><a href="#flat-map"><span class="secno">4.1</span> <span class="content"><span>[flat.map]</span></span></a>
-      <li><a href="#flat-multimap"><span class="secno">4.2</span> <span class="content"><span>[flat.multimap]</span></span></a>
-      <li><a href="#flat-set"><span class="secno">4.3</span> <span class="content"><span>[flat.set]</span></span></a>
-      <li><a href="#flat-multiset"><span class="secno">4.4</span> <span class="content"><span>[flat.multiset]</span></span></a>
+      <li><a href="#flat-map"><span class="secno">5.1</span> <span class="content"><span>[flat.map]</span></span></a>
+      <li><a href="#flat-multimap"><span class="secno">5.2</span> <span class="content"><span>[flat.multimap]</span></span></a>
+      <li><a href="#flat-set"><span class="secno">5.3</span> <span class="content"><span>[flat.set]</span></span></a>
+      <li><a href="#flat-multiset"><span class="secno">5.4</span> <span class="content"><span>[flat.multiset]</span></span></a>
      </ol>
-    <li><a href="#impl"><span class="secno">5</span> <span class="content">Implementation Experience</span></a>
-    <li><a href="#ack"><span class="secno">6</span> <span class="content">Acknowledgements</span></a>
+    <li><a href="#impl"><span class="secno">6</span> <span class="content">Implementation Experience</span></a>
+    <li><a href="#ack"><span class="secno">7</span> <span class="content">Acknowledgements</span></a>
    </ol>
   </nav>
   <main>
@@ -2289,7 +2290,17 @@ underlying container. As an example, consider <a href="https://eel.is/c++draft/p
    <p>In these cases, the adaptors expose whatever reference type the underlying container
 provides. In the case of <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code>, <code class="highlight"><c- n>reference</c-></code> resolves to
 <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>>::</c-><c- n>reference</c-></code>, which is the proxy class.</p>
-   <h2 class="heading settled" data-level="4" id="wording"><span class="secno">4. </span><span class="content">Proposed Wording</span><a class="self-link" href="#wording"></a></h2>
+   <h2 class="heading settled" data-level="4" id="bool-keys"><span class="secno">4. </span><span class="content"><code class="highlight"><c- b>bool</c-></code> Keys and Sets</span><a class="self-link" href="#bool-keys"></a></h2>
+   <p>The case that motivates this proposal is <code class="highlight"><c- n>flat_map</c-><c- o>&lt;</c-><c- n>K</c-><c- p>,</c-> <c- b>bool</c-><c- o>></c-></code>. The same change also
+makes <code class="highlight"><c- b>bool</c-></code> work as a key (<code class="highlight"><c- n>flat_map</c-><c- o>&lt;</c-><c- b>bool</c-><c- p>,</c-> <c- n>V</c-><c- o>></c-></code>, <code class="highlight"><c- n>flat_multimap</c-><c- o>&lt;</c-><c- b>bool</c-><c- p>,</c-> <c- n>V</c-><c- o>></c-></code>,
+<code class="highlight"><c- n>flat_set</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code>, <code class="highlight"><c- n>flat_multiset</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code>).</p>
+   <p><code class="highlight"><c- n>flat_map</c-><c- o>&lt;</c-><c- b>bool</c-><c- p>,</c-> <c- n>V</c-><c- o>></c-></code> and <code class="highlight"><c- n>flat_set</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> hold at most two entries.
+<code class="highlight"><c- n>flat_multimap</c-><c- o>&lt;</c-><c- b>bool</c-><c- p>,</c-> <c- n>V</c-><c- o>></c-></code> and <code class="highlight"><c- n>flat_multiset</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> hold at most two distinct
+keys. These instantiations are not particularly useful, and we don’t expect
+people to use them often. However, it’s more consistent to support them.
+Additionally, once <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> is permitted on the mapped side, allowing it
+on the key side is trivial.</p>
+   <h2 class="heading settled" data-level="5" id="wording"><span class="secno">5. </span><span class="content">Proposed Wording</span><a class="self-link" href="#wording"></a></h2>
    <p>
     Insertions are shown as 
     <ins>green text</ins>
@@ -2298,7 +2309,7 @@ and deletions as
     <del>red strike-through text</del>
     .
    </p>
-   <h3 class="heading settled" data-level="4.1" id="flat-map"><span class="secno">4.1. </span><span class="content"><a href="https://eel.is/c++draft/flat.map">[flat.map]</a></span><a class="self-link" href="#flat-map"></a></h3>
+   <h3 class="heading settled" data-level="5.1" id="flat-map"><span class="secno">5.1. </span><span class="content"><a href="https://eel.is/c++draft/flat.map">[flat.map]</a></span><a class="self-link" href="#flat-map"></a></h3>
    <p>Modify <a href="https://eel.is/c++draft/flat.map#overview-7">[flat.map.overview]/7</a>
 as follows:</p>
    <blockquote class="wording">
@@ -2402,7 +2413,7 @@ as follows:</p>
 <ins>  <c- n>iter_reference_t</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>MappedContainer</c-><c- o>::</c-><c- n>const_iterator</c-><c- o>></c-> <c- n>at</c-><c- p>(</c-><c- k>const</c-> <c- n>K</c-><c- o>&amp;</c-> <c- n>x</c-><c- p>)</c-> <c- k>const</c-><c- p>;</c-></ins>
 </pre>
    </blockquote>
-   <h3 class="heading settled" data-level="4.2" id="flat-multimap"><span class="secno">4.2. </span><span class="content"><a href="https://eel.is/c++draft/flat.multimap">[flat.multimap]</a></span><a class="self-link" href="#flat-multimap"></a></h3>
+   <h3 class="heading settled" data-level="5.2" id="flat-multimap"><span class="secno">5.2. </span><span class="content"><a href="https://eel.is/c++draft/flat.multimap">[flat.multimap]</a></span><a class="self-link" href="#flat-multimap"></a></h3>
    <p>Modify
 <a href="https://eel.is/c++draft/flat.multimap#overview-7">[flat.multimap.overview]/7</a>
 as follows:</p>
@@ -2480,7 +2491,7 @@ follows:</p>
 <c- p>}</c->
 </pre>
    </blockquote>
-   <h3 class="heading settled" data-level="4.3" id="flat-set"><span class="secno">4.3. </span><span class="content"><a href="https://eel.is/c++draft/flat.set">[flat.set]</a></span><a class="self-link" href="#flat-set"></a></h3>
+   <h3 class="heading settled" data-level="5.3" id="flat-set"><span class="secno">5.3. </span><span class="content"><a href="https://eel.is/c++draft/flat.set">[flat.set]</a></span><a class="self-link" href="#flat-set"></a></h3>
    <p>Modify <a href="https://eel.is/c++draft/flat.set#overview-7">[flat.set.overview]/7</a>
 as follows:</p>
    <blockquote class="wording">
@@ -2532,7 +2543,7 @@ follows:</p>
 <c- p>}</c->
 </pre>
    </blockquote>
-   <h3 class="heading settled" data-level="4.4" id="flat-multiset"><span class="secno">4.4. </span><span class="content"><a href="https://eel.is/c++draft/flat.multiset">[flat.multiset]</a></span><a class="self-link" href="#flat-multiset"></a></h3>
+   <h3 class="heading settled" data-level="5.4" id="flat-multiset"><span class="secno">5.4. </span><span class="content"><a href="https://eel.is/c++draft/flat.multiset">[flat.multiset]</a></span><a class="self-link" href="#flat-multiset"></a></h3>
    <p>Modify
 <a href="https://eel.is/c++draft/flat.multiset#overview-7">[flat.multiset.overview]/7</a>
 as follows:</p>
@@ -2585,13 +2596,13 @@ as follows:</p>
 <c- p>}</c->
 </pre>
    </blockquote>
-   <h2 class="heading settled" data-level="5" id="impl"><span class="secno">5. </span><span class="content">Implementation Experience</span><a class="self-link" href="#impl"></a></h2>
+   <h2 class="heading settled" data-level="6" id="impl"><span class="secno">6. </span><span class="content">Implementation Experience</span><a class="self-link" href="#impl"></a></h2>
    <p>The proposed wording has been implemented in libc++ on the <a href="https://github.com/llvm/llvm-project/compare/main...aryann:llvm-project:flatbool"><code class="highlight"><c- n>flatbool</c-></code>
 branch in github.com/aryann/llvm-project</a>.
 The existing flat adaptors test suite passes against it. A new
 <code class="highlight"><c- b>bool</c-><c- p>.</c-><c- n>pass</c-><c- p>.</c-><c- n>cpp</c-></code> test for each of the four flat adaptors exercises
 <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> as an underlying container.</p>
-   <h2 class="heading settled" data-level="6" id="ack"><span class="secno">6. </span><span class="content">Acknowledgements</span><a class="self-link" href="#ack"></a></h2>
+   <h2 class="heading settled" data-level="7" id="ack"><span class="secno">7. </span><span class="content">Acknowledgements</span><a class="self-link" href="#ack"></a></h2>
    <p>Thanks to <a href="mailto:arthur.j.odwyer@gmail.com">Arthur O’Dwyer</a>, whose
 <a href="https://lists.isocpp.org/std-proposals/2026/05/18446.php">std-proposals post</a>
 outlined the implementation approach this paper builds on.</p>
