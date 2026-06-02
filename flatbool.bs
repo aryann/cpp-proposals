@@ -5,7 +5,7 @@ Level: 1
 Status: D
 Group: WG21
 Audience: LEWG
-URL: http://example.com/url-this-spec-will-live-at
+URL: https://cppproposals.aryan.app/flatbool.html
 Editor: Aryan Naraghi, aryan.naraghi@gmail.com
 Abstract:
   Allow `vector<bool>` as an underlying container in `flat_map`, `flat_multimap`, `flat_set`, and `flat_multiset`, enabling `bool` as a key or mapped type with the default template arguments.
