@@ -1564,7 +1564,7 @@ Possible extra rowspan handling
   <meta content="Bikeshed version 0a3d88311, updated Mon May 4 18:07:03 2026 +0000" name="generator">
   <link href="http://example.com/url-this-spec-will-live-at" rel="canonical">
   <link href="https://isocpp.org/favicon.ico" rel="icon">
-  <meta content="f8162d6ca3c253aa763a15c858fe1bc446f0964c" name="revision">
+  <meta content="d99253ba784d66e6f2a2452294bf795cde0f196f" name="revision">
   <meta content="dark light" name="color-scheme">
 <style>
 ins {
@@ -2195,7 +2195,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
      <dt class="editor">Author:
      <dd class="editor h-card p-author vcard"><a class="email fn p-name u-email" href="mailto:aryan.naraghi@gmail.com">Aryan Naraghi</a>
      <dt>Audience:
-     <dd>LEWG, LWG
+     <dd>LEWG
      <dt>Project:
      <dd>ISO/IEC 14882 Programming Languages — C++, ISO/IEC JTC1/SC22/WG21
     </dl>
@@ -2244,7 +2244,7 @@ container, such as <code class="highlight"><c- n>deque</c-></code>:</p>
 alternative sequence container to drop in. Additionally, the compilation errors
 generated when a user fails to override the container are difficult to
 understand, especially for new C++ developers.</p>
-   <p>A similar issue exists for <code class="highlight"><c- n>flat_multimmap</c-></code>, <code class="highlight"><c- n>flat_set</c-></code>, and <code class="highlight"><c- n>flat_multiset</c-></code>.</p>
+   <p>A similar issue exists for <code class="highlight"><c- n>flat_multimap</c-></code>, <code class="highlight"><c- n>flat_set</c-></code>, and <code class="highlight"><c- n>flat_multiset</c-></code>.</p>
    <p>This paper proposes changes to <code class="highlight"><c- n>flat_map</c-></code>, <code class="highlight"><c- n>flat_multimap</c-></code>, <code class="highlight"><c- n>flat_set</c-></code>, and
 <code class="highlight"><c- n>flat_multiset</c-></code> so that <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> is usable as an underlying container without
 affecting any other conforming instantiations.</p>
@@ -2257,7 +2257,7 @@ three flat adaptors.</p>
    <ol>
     <li data-md>
      <p><strong>Incompatible Reference Types:</strong> <code class="highlight"><c- n>reference</c-></code>, <code class="highlight"><c- n>const_reference</c-></code> and the
-return types of <code class="highlight"><c- nl>flat_map</c-><c- p>:</c-><c- k>operator</c-><c- p>[]</c-></code> and <code class="highlight"><c- n>flat_map</c-><c- o>::</c-><c- n>at</c-></code> are spelled in
+return types of <code class="highlight"><c- n>flat_map</c-><c- o>::</c-><c- k>operator</c-><c- p>[]</c-></code> and <code class="highlight"><c- n>flat_map</c-><c- o>::</c-><c- n>at</c-></code> are spelled in
 terms of <code class="highlight"><c- n>mapped_type</c-></code> and <code class="highlight"><c- n>value_type</c-></code> (see <a href="https://eel.is/c++draft/flat.map.defn">[flat.map.defn]</a>). The
 reference type for <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> is not <code class="highlight"><c- b>bool</c-><c- o>&amp;</c-></code>. It is a proxy class that
 simulates a direct reference to a <code class="highlight"><c- b>bool</c-></code>.</p>
@@ -2275,7 +2275,7 @@ signatures remain unchanged for all currently-supported containers.</p>
    <p>For <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code>, <code class="highlight"><c- n>iter_reference_t</c-><c- o>&lt;</c-><c- n>C</c-><c- o>::</c-><c- n>iterator</c-><c- o>></c-></code> is the proxy class type and
 <code class="highlight"><c- n>iter_reference_t</c-><c- o>&lt;</c-><c- n>C</c-><c- o>::</c-><c- n>const_iterator</c-><c- o>></c-></code> is <code class="highlight"><c- b>bool</c-></code>. These resolutions make the
 declarations well-formed, allowing code like <code class="highlight"><c- n>my_map</c-><c- p>[</c-><c- mi>1</c-><c- p>]</c-> <c- o>=</c-> true</code>.</p>
-   <p>The fix for the second problem is to admit <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> by name .
+   <p>The fix for the second problem is to admit <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> by name.
 <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> does not meet the sequence container requirements. As just one
 example, <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> violates the <a href="https://eel.is/c++draft/container.requirements#container.reqmts-4"><code class="highlight"><c- n>X</c-><c- o>::</c-><c- n>reference</c-></code> equal
 <code class="highlight"><c- n>T</c-><c- o>&amp;</c-></code></a>
@@ -2284,7 +2284,7 @@ required to address the second problem.</p>
    <h2 class="heading settled" data-level="3" id="other-adaptors"><span class="secno">3. </span><span class="content">Other Container Adaptors</span><a class="self-link" href="#other-adaptors"></a></h2>
    <p><code class="highlight"><c- n>stack</c-></code>, <code class="highlight"><c- n>queue</c-></code>, and <code class="highlight"><c- n>priority_queue</c-></code> do not suffer from this problem because their
 <code class="highlight"><c- n>reference</c-></code> and <code class="highlight"><c- n>const_reference</c-></code> typedefs are defined in terms of the
-underlying container. As an example, consider <a href="https://eel.is/c++draft/deque">[deque]</a>:</p>
+underlying container. As an example, consider <a href="https://eel.is/c++draft/priority.queue">[priority.queue]</a>:</p>
 <pre class="highlight line-numbered"><span class="line-no" data-line="1"></span><span class="line"><c- k>namespace</c-> <c- nn>std</c-> <c- p>{</c-></span><span class="line-no" data-line="2"></span><span class="line">  <c- k>template</c-><c- o>&lt;</c-><c- k>class</c-> <c- nc>T</c-><c- p>,</c-> <c- k>class</c-> <c- nc>Container</c-> <c- o>=</c-> <c- n>vector</c-><c- o>&lt;</c-><c- n>T</c-><c- o>></c-><c- p>,</c-></span><span class="line-no" data-line="3"></span><span class="line">           <c- k>class</c-> <c- nc>Compare</c-> <c- o>=</c-> <c- n>less</c-><c- o>&lt;</c-><c- k>typename</c-> <c- nc>Container</c-><c- o>::</c-><c- n>value_type</c-><c- o>>></c-></span><span class="line-no" data-line="4"></span><span class="line">  <c- k>class</c-> <c- nc>priority_queue</c-> <c- p>{</c-></span><span class="line-no" data-line="5"></span><span class="line">  <c- k>public</c-><c- o>:</c-></span><span class="line-no" data-line="6"></span><span class="line">    <c- k>using</c-> <c- n>value_type</c->      <c- o>=</c-> <c- n>Container</c-><c- o>::</c-><c- n>value_type</c-><c- p>;</c-></span><span class="line-no" data-line="7"></span><span class="line">    <c- k>using</c-> <c- n>reference</c->       <c- o>=</c-> <c- n>Container</c-><c- o>::</c-><c- n>reference</c-><c- p>;</c-></span><span class="line-no" data-line="8"></span><span class="line">    <c- k>using</c-> <c- n>const_reference</c-> <c- o>=</c-> <c- n>Container</c-><c- o>::</c-><c- n>const_reference</c-><c- p>;</c-></span><span class="line-no" data-line="9"></span><span class="line">    <c- k>using</c-> <c- n>size_type</c->       <c- o>=</c-> <c- n>Container</c-><c- o>::</c-><c- n>size_type</c-><c- p>;</c-></span><span class="line-no" data-line="10"></span><span class="line">    <c- k>using</c-> <c- n>container_type</c->  <c- o>=</c-> <c- n>Container</c-><c- p>;</c-></span><span class="line-no" data-line="11"></span><span class="line">    <c- k>using</c-> <c- n>value_compare</c->   <c- o>=</c-> <c- n>Compare</c-><c- p>;</c-></span><span class="line-no" data-line="12"></span><span class="line">    <c- c1>// ...</c-></span></pre>
    <p>In these cases, the adaptors expose whatever reference type the underlying container
 provides. In the case of <code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code>, <code class="highlight"><c- n>reference</c-></code> resolves to
@@ -2370,9 +2370,8 @@ follows:</p>
     <c- p>};</c->
 
     <c- c1>// ...</c->
-
-<c- p>};</c-> <c- p>}</c->
-
+  <c- p>};</c->
+<c- p>}</c->
 </pre>
    </blockquote>
    <p>Modify <a href="https://eel.is/c++draft/flat.map.access">[flat.map.access]</a>
@@ -2477,9 +2476,8 @@ follows:</p>
     <c- p>};</c->
 
     <c- c1>// ...</c->
-
-<c- p>};</c-> <c- p>}</c->
-
+  <c- p>};</c->
+<c- p>}</c->
 </pre>
    </blockquote>
    <h3 class="heading settled" data-level="4.3" id="flat-set"><span class="secno">4.3. </span><span class="content"><a href="https://eel.is/c++draft/flat.set">[flat.set]</a></span><a class="self-link" href="#flat-set"></a></h3>
