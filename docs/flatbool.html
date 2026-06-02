@@ -1564,7 +1564,7 @@ Possible extra rowspan handling
   <meta content="Bikeshed version 0a3d88311, updated Mon May 4 18:07:03 2026 +0000" name="generator">
   <link href="https://cppproposals.aryan.app/flatbool.html" rel="canonical">
   <link href="https://isocpp.org/favicon.ico" rel="icon">
-  <meta content="64727c84257b5da42919b2107220b77cac3d986a" name="revision">
+  <meta content="6e278ba23c3d041eaba75714ee54e120e6153187" name="revision">
   <meta content="dark light" name="color-scheme">
 <style>
 ins {
@@ -2187,7 +2187,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
    <p data-fill-with="logo"></p>
    <h1 class="no-ref p-name" id="title">D????R1<br><code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> as an underlying container in flat adaptors</h1>
    <h2 class="heading no-num no-ref no-toc settled" id="profile-and-date"><span class="content">Draft Proposal,
-    <time class="dt-updated" datetime="2026-06-01">2026-06-01</time></span></h2>
+    <time class="dt-updated" datetime="2026-06-02">2026-06-02</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -2586,13 +2586,15 @@ as follows:</p>
 </pre>
    </blockquote>
    <h2 class="heading settled" data-level="5" id="impl"><span class="secno">5. </span><span class="content">Implementation Experience</span><a class="self-link" href="#impl"></a></h2>
-   <p>See <a href="https://github.com/llvm/llvm-project/compare/main...aryann:llvm-project:flatbool">libc++
-implementation</a>.</p>
+   <p>The proposed wording has been implemented in libc++ on the <a href="https://github.com/llvm/llvm-project/compare/main...aryann:llvm-project:flatbool"><code class="highlight"><c- n>flatbool</c-></code>
+branch in github.com/aryann/llvm-project</a>.
+The existing flat adaptors test suite passes against it. A new
+<code class="highlight"><c- b>bool</c-><c- p>.</c-><c- n>pass</c-><c- p>.</c-><c- n>cpp</c-></code> test for each of the four flat adaptors exercises
+<code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code> as an underlying container.</p>
    <h2 class="heading settled" data-level="6" id="ack"><span class="secno">6. </span><span class="content">Acknowledgements</span><a class="self-link" href="#ack"></a></h2>
-   <p>Thanks to <a href="mailto:arthur.j.odwyer@gmail.com">Arthur O’Dwyer</a> for providing the
-original <a href="https://lists.isocpp.org/std-proposals/2026/05/18446.php">implementation
-idea</a> for supporting
-<code class="highlight"><c- n>vector</c-><c- o>&lt;</c-><c- b>bool</c-><c- o>></c-></code>.</p>
+   <p>Thanks to <a href="mailto:arthur.j.odwyer@gmail.com">Arthur O’Dwyer</a>, whose
+<a href="https://lists.isocpp.org/std-proposals/2026/05/18446.php">std-proposals post</a>
+outlined the implementation approach this paper builds on.</p>
   </main>
 <script>
 (function() {

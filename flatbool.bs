@@ -445,13 +445,15 @@ namespace std {
 Implementation Experience {#impl}
 =================================
 
-See [libc++
-implementation](https://github.com/llvm/llvm-project/compare/main...aryann:llvm-project:flatbool).
+The proposed wording has been implemented in libc++ on the [`flatbool`
+branch in github.com/aryann/llvm-project](https://github.com/llvm/llvm-project/compare/main...aryann:llvm-project:flatbool).
+The existing flat adaptors test suite passes against it. A new
+`bool.pass.cpp` test for each of the four flat adaptors exercises
+`vector<bool>` as an underlying container.
 
 Acknowledgements {#ack}
 =======================
 
-Thanks to [Arthur O'Dwyer](mailto:arthur.j.odwyer@gmail.com) for providing the
-original [implementation
-idea](https://lists.isocpp.org/std-proposals/2026/05/18446.php) for supporting
-`vector<bool>`.
+Thanks to [Arthur O'Dwyer](mailto:arthur.j.odwyer@gmail.com), whose
+[std-proposals post](https://lists.isocpp.org/std-proposals/2026/05/18446.php)
+outlined the implementation approach this paper builds on.
