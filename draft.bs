@@ -4,7 +4,7 @@ Shortname: D????
 Level: 1
 Status: D
 Group: WG21
-Audience: LEWG, LWG
+Audience: LEWG
 URL: http://example.com/url-this-spec-will-live-at
 Editor: Aryan Naraghi, aryan.naraghi@gmail.com
 Abstract:
@@ -78,7 +78,7 @@ alternative sequence container to drop in. Additionally, the compilation errors
 generated when a user fails to override the container are difficult to
 understand, especially for new C++ developers.
 
-A similar issue exists for `flat_multimmap`, `flat_set`, and `flat_multiset`.
+A similar issue exists for `flat_multimap`, `flat_set`, and `flat_multiset`.
 
 This paper proposes changes to `flat_map`, `flat_multimap`, `flat_set`, and
 `flat_multiset` so that `vector<bool>` is usable as an underlying container without
@@ -95,13 +95,13 @@ three flat adaptors.
 There are two problems:
 
 1. **Incompatible Reference Types:** `reference`, `const_reference` and the
-    return types of `flat_map:operator[]` and `flat_map::at` are spelled in
+    return types of `flat_map::operator[]` and `flat_map::at` are spelled in
     terms of `mapped_type` and `value_type` (see <a
     href="https://eel.is/c++draft/flat.map.defn">[flat.map.defn]</a>). The
     reference type for `vector<bool>` is not `bool&`. It is a proxy class that
     simulates a direct reference to a `bool`.
 
-1. **Sequence Container Requirement:** The sequence container requirement
+2. **Sequence Container Requirement:** The sequence container requirement
     explicitly excludes `vector<bool>` (see <a
     href="https://eel.is/c++draft/flat.map#overview-7">[flat.map.overview]/7</a>).
 
@@ -118,7 +118,7 @@ For `vector<bool>`, `iter_reference_t<C::iterator>` is the proxy class type and
 `iter_reference_t<C::const_iterator>` is `bool`. These resolutions make the
 declarations well-formed, allowing code like `my_map[1] = true`. 
 
-The fix for the second problem is to admit `vector<bool>` by name .
+The fix for the second problem is to admit `vector<bool>` by name.
 `vector<bool>` does not meet the sequence container requirements. As just one
 example, `vector<bool>` violates the [`X::reference` equal
 `T&`](https://eel.is/c++draft/container.requirements#container.reqmts-4)
@@ -131,7 +131,7 @@ Other Container Adaptors {#other-adaptors}
 `stack`, `queue`, and `priority_queue` do not suffer from this problem because their
 `reference` and `const_reference` typedefs are defined in terms of the
 underlying container. As an example, consider <a
-href="https://eel.is/c++draft/deque">[deque]</a>:
+href="https://eel.is/c++draft/priority.queue">[priority.queue]</a>:
 
 <xmp line-numbers="on">
 namespace std {
@@ -198,11 +198,11 @@ namespace std {
     using value_compare           = <em>unspecified</em>;
 <del>    using reference              = pair&lt;const key_type&, mapped_type&>;</del>
 <del>    using const_reference        = pair&lt;const key_type&, const mapped_type&>;</del>
-<ins>    using <em>key-const-reference</em>    = iter_reference_t&lt;typename KeyContainer::const_iterator&gt;;     // exposition only</ins>
-<ins>    using <em>mapped-reference</em>       = iter_reference_t&lt;typename MappedContainer::iterator&gt;;        // exposition only</ins>
-<ins>    using <em>mapped-const-reference</em> = iter_reference_t&lt;typename MappedContainer::const_iterator&gt;;  // exposition only</ins>
-<ins>    using reference              = pair&lt;key-const-reference, mapped-reference&gt;;</ins>
-<ins>    using const_reference        = pair&lt;key-const-reference, mapped-const-reference&gt;;</ins>
+<ins>    using <em>key-const-reference</em>    = iter_reference_t&lt;typename KeyContainer::const_iterator>;     // exposition only</ins>
+<ins>    using <em>mapped-reference</em>       = iter_reference_t&lt;typename MappedContainer::iterator>;        // exposition only</ins>
+<ins>    using <em>mapped-const-reference</em> = iter_reference_t&lt;typename MappedContainer::const_iterator>;  // exposition only</ins>
+<ins>    using reference              = pair&lt;key-const-reference, mapped-reference>;</ins>
+<ins>    using const_reference        = pair&lt;key-const-reference, mapped-const-reference>;</ins>
     using size_type               = size_t;
     using difference_type         = ptrdiff_t;
     using iterator                = <em>implementation-defined</em>;     // see <a href="https://eel.is/c++draft/container.requirements">[container.requirements]</a>
@@ -228,9 +228,8 @@ namespace std {
     };
 
     // ...
-
-}; }
-
+  };
+}
 </pre>
 </blockquote>
 
@@ -337,9 +336,8 @@ namespace std {
     };
 
     // ...
-
-}; }
-
+  };
+}
 </pre>
 </blockquote>
 
